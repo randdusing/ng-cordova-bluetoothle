@@ -1,6 +1,11 @@
-//TODO add log to app
-
 angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
+
+//For live reload debugging
+.run(function($state, $ionicPlatform) {
+  $ionicPlatform.ready(function() {
+    $state.go("home");
+  });
+})
 
 .config(function($stateProvider, $urlRouterProvider) {
 
@@ -23,13 +28,13 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
   })
 
   .state('service', {
-    url: '/:address/:serviceUuid',
+    url: '/:address/:service',
     templateUrl: 'service.html',
     controller: "ServiceCtrl"
   })
 
   .state('characteristic', {
-    url: '/:address/:serviceUuid/:characteristicUuid',
+    url: '/:address/:service/:characteristic',
     templateUrl: 'characteristic.html',
     controller: "CharacteristicCtrl"
   });
@@ -56,217 +61,106 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
 
     console.log("Initialize : " + JSON.stringify(params));
 
-    $cordovaBluetoothLE.initialize(params).then(null, initializeError, initializeSuccess);
+    $cordovaBluetoothLE.initialize(params).then(null, null, function(obj) {
+      console.log("Initialize Success : " + JSON.stringify(obj));
+    });
   };
-
-  function initializeSuccess(obj) {
-    console.log("Initialize Success : " + JSON.stringify(obj));
-
-    if (obj.status == "enabled")
-    {
-      console.log("Enabled");
-    }
-    else
-    {
-      console.log("Unexpected Initialize Status");
-    }
-  }
-
-  function initializeError(obj) {
-    console.log("Initialize Error : " + JSON.stringify(obj));
-  }
 
   $rootScope.enable = function() {
     console.log("Enable");
 
-    $cordovaBluetoothLE.enable().then(enableSuccess, enableError);
+    $cordovaBluetoothLE.enable().then(null, function(obj) {
+      console.log("Enable Error : " + JSON.stringify(obj));
+    });
   };
-
-  function enableSuccess(obj) {
-    console.log("Enable Success : " + JSON.stringify(obj));
-
-    if (obj.status == "enabled")
-    {
-      console.log("Enabled");
-    }
-    else
-    {
-      console.log("Unexpected Enable Status");
-    }
-  }
-
-  function enableError(obj) {
-    console.log("Enable Error : " + JSON.stringify(obj));
-  }
 
   $rootScope.disable = function() {
     console.log("Disable");
 
-    $cordovaBluetoothLE.disable().then(disableSuccess, disableError);
+    $cordovaBluetoothLE.disable().then(null, function(obj) {
+      console.log("Disable Error : " + JSON.stringify(obj));
+    });
   };
 
-  function disableSuccess(obj) {
-    console.log("Disable Success : " + JSON.stringify(obj));
-
-    if (obj.status == "disabled")
-    {
-      console.log("Disabled");
-    }
-    else
-    {
-      console.log("Unexpected Disable Status");
-    }
-  }
-
-  function disableError(obj) {
-    console.log("Disable Error : " + JSON.stringify(obj));
-  }
-
   $rootScope.startScan = function() {
-    var params = {serviceUuids:[], allowDuplicates: false};
+    var params = {
+      services:[],
+      allowDuplicates: false,
+      scanMode: bluetoothle.SCAN_MODE_LOW_POWER,
+      matchMode: bluetoothle.MATCH_MODE_STICKY,
+      matchNum: bluetoothle.MATCH_NUM_ONE_ADVERTISEMENT,
+      //callbackType: bluetoothle.CALLBACK_TYPE_FIRST_MATCH,
+      //scanTimeout: 15000,
+    };
 
     console.log("Start Scan : " + JSON.stringify(params));
 
-    $cordovaBluetoothLE.startScan(params).then(null, startScanError, startScanSuccess);
-  };
-
-  function startScanSuccess(obj) {
-    console.log("Start Scan Success : " + JSON.stringify(obj));
-
-    if (obj.status == "scanResult")
-    {
-      console.log("Scan Result");
+    $cordovaBluetoothLE.startScan(params).then(function(obj) {
+      console.log("Start Scan Auto Stop : " + JSON.stringify(obj));
+    }, function(obj) {
+      console.log("Start Scan Error : " + JSON.stringify(obj));
+    }, function(obj) {
+      console.log("Start Scan Success : " + JSON.stringify(obj));
 
       addDevice(obj);
-    }
-    else if (obj.status == "scanStarted")
-    {
-      console.log("Scan Started");
-    }
-    else
-    {
-      console.log("Unexpected Start Scan Status");
-    }
-  }
-
-  function startScanError(obj) {
-    console.log("Start Scan Error : " + JSON.stringify(obj));
-  }
+    });
+  };
 
   $rootScope.stopScan = function() {
     console.log("Stop Scan");
 
-    $cordovaBluetoothLE.stopScan().then(stopScanSuccess, stopScanError);
+    $cordovaBluetoothLE.stopScan().then(function(obj) {
+      console.log("Stop Scan Success : " + JSON.stringify(obj));
+    }, function(obj) {
+      console.log("Stop Scan Error : " + JSON.stringify(obj));
+    });
   };
 
-  function stopScanSuccess(obj) {
-    console.log("Stop Scan Success : " + JSON.stringify(obj));
-
-    if (obj.status == "scanStopped")
-    {
-      console.log("Scan Stopped");
-    }
-    else
-    {
-      console.log("Unexpected Stop Scan Status");
-    }
-  }
-
-  function stopScanError(obj) {
-    console.log("Stop Scan Error : " + JSON.stringify(obj));
-  }
-
   $rootScope.retrieveConnected = function() {
-    var params = {serviceUuids:[]};
+    var params = {services:["180D"]};
 
     console.log("Retrieve Connected : " + JSON.stringify(params));
 
-    $cordovaBluetoothLE.retrieveConnected(params).then(retrieveConnectedSuccess, retrieveConnectedError);
+    $cordovaBluetoothLE.retrieveConnected(params).then(function(obj) {
+      console.log("Retrieve Connected Success : " + JSON.stringify(obj));
+
+      for (var i = 0; i < obj.length; i++) {
+        addDevice(obj[i]);
+      }
+    }, function(obj) {
+      console.log("Retrieve Connected Error : " + JSON.stringify(obj));
+    });
   };
-
-  function retrieveConnectedSuccess(obj) {
-    console.log("Retrieve Connected Success : " + JSON.stringify(obj));
-
-    for (var i = 0; i < obj.length; i++)
-    {
-      addDevice(obj[i]);
-    }
-  }
-
-  function retrieveConnectedError(obj) {
-    console.log("Retrieve Connected Error : " + JSON.stringify(obj));
-  }
 
   $rootScope.isInitialized = function() {
     console.log("Is Initialized");
 
-    $cordovaBluetoothLE.isInitialized().then(isInitializedSuccess, isInitializedError);
+    $cordovaBluetoothLE.isInitialized().then(function(obj) {
+      console.log("Is Initialized Success : " + JSON.stringify(obj));
+    });
   };
-
-  function isInitializedSuccess(obj) {
-    console.log("Is Initialized Success : " + JSON.stringify(obj));
-
-    if (obj.isInitialized)
-    {
-      console.log("Is Initialized : true");
-    }
-    else
-    {
-      console.log("Is Initialized : false");
-    }
-  }
-
-  function isInitializedError(obj) {
-    console.log("Is Initialized Error : " + JSON.stringify(obj));
-  }
 
   $rootScope.isEnabled = function() {
     console.log("Is Enabled");
 
-    $cordovaBluetoothLE.isEnabled().then(isEnabledSuccess, isEnabledError);
-  }
-
-  function isEnabledSuccess(obj) {
-    console.log("Is Enabled Success : " + JSON.stringify(obj));
-
-    if (obj.isEnabled)
-    {
-      console.log("Is Enabled : true");
-    }
-    else
-    {
-      console.log("Is Enabled : false");
-    }
-  }
-
-  function isEnabledError(obj) {
-    console.log("Is Enabled Error : " + JSON.stringify(obj));
-  }
+    $cordovaBluetoothLE.isEnabled().then(function(obj) {
+      console.log("Is Enabled Success : " + JSON.stringify(obj));
+    });
+  };
 
   $rootScope.isScanning = function() {
     console.log("Is Scanning");
 
-    $cordovaBluetoothLE.isScanning().then(isScanningSuccess, isScanningError);
-  }
-
-  function isScanningSuccess(obj) {
-    console.log("Is Scanning Success : " + JSON.stringify(obj));
-
-    if (obj.isScanning)
-    {
-      console.log("Is Scanning : true");
-    }
-    else
-    {
-      console.log("Is Scanning : false");
-    }
-  }
-
-  function isScanningError(obj) {
-    console.log("Is Scanning Error : " + JSON.stringify(obj));
-  }
+    $cordovaBluetoothLE.isScanning().then(function(obj) {
+      console.log("Is Scanning Success : " + JSON.stringify(obj));
+    });
+  };
 
   function addDevice(obj) {
+    if (obj.status == "scanStarted") {
+      return;
+    }
+    
     if ($rootScope.devices[obj.address] !== undefined) {
       return;
     }
@@ -278,659 +172,381 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
   $rootScope.hasPermission = function() {
     console.log("Has Permission");
 
-    $cordovaBluetoothLE.hasPermission().then(hasPermissionSuccess);
-  }
-
-  function hasPermissionSuccess(obj) {
-    console.log("Has Permission Success : " + JSON.stringify(obj));
-
-    if (obj.hasPermission)
-    {
-      console.log("Has Permission : true");
-    }
-    else
-    {
-      console.log("Has Permission : false");
-    }
-  }
+    $cordovaBluetoothLE.hasPermission().then(function(obj) {
+      console.log("Has Permission Success : " + JSON.stringify(obj));
+    }, function(obj) {
+      console.log("Has Permission Error : " + JSON.stringify(obj));
+    });
+  };
 
   $rootScope.requestPermission = function() {
     console.log("Request Permission");
 
-    $cordovaBluetoothLE.requestPermission().then(requestPermissionSuccess);
-  }
-
-  function requestPermissionSuccess(obj) {
-    console.log("Request Permission Success : " + JSON.stringify(obj));
-
-    if (obj.requestPermission)
-    {
-      console.log("Request Permission : true");
-    }
-    else
-    {
-      console.log("Request Permission : false");
-    }
-  }
+    $cordovaBluetoothLE.requestPermission().then(function(obj) {
+      console.log("Request Permission Success : " + JSON.stringify(obj));
+    }, function(obj) {
+      console.log("Request Permission Error : " + JSON.stringify(obj));
+    });
+  };
 })
 
 .controller('DeviceCtrl', function($scope, $rootScope, $state, $stateParams, $ionicHistory, $cordovaBluetoothLE) {
   $scope.$on("$ionicView.beforeEnter", function () {
-    if ($rootScope.devices === undefined) {
-      $rootScope.devices = {};
-    }
-    var device = $rootScope.devices[$stateParams.address];
-    if (device === undefined) {
-      device = {address: "123", name: "LOL"}
-      //$ionicHistory.goBack();
-      //return;
-    }
-
-    $rootScope.selectedDevice = device;
+    $rootScope.selectedDevice = $rootScope.devices[$stateParams.address];
   });
 
   $scope.goToService = function(service) {
-    $state.go("service", {address:$rootScope.selectedDevice.address, serviceUuid: service.uuid});
+    $state.go("service", {address:$rootScope.selectedDevice.address, service: service.uuid});
   };
 
   $rootScope.connect = function(address) {
-    var params = {address:address};
+    var params = {address:address, timeout: 5000};
 
     console.log("Connect : " + JSON.stringify(params));
 
-    $cordovaBluetoothLE.connect(params).then(null, connectError, connectSuccess);
-  }
-
-  function connectSuccess(obj) {
-    console.log("Connect Success : " + JSON.stringify(obj));
-
-    if (obj.status == "connected")
-    {
-      console.log("Connected");
-    }
-    else if (obj.status == "connecting")
-    {
-      console.log("Connecting");
-    }
-    else
-    {
-      console.log("Unexpected Connect Status");
-    }
-  }
-
-  function connectError(obj) {
-    console.log("Connect Error : " + JSON.stringify(obj));
-  }
+    $cordovaBluetoothLE.connect(params).then(null, function(obj) {
+      console.log("Connect Error : " + JSON.stringify(obj));
+      $rootScope.close(address); //Best practice is to close on connection error
+    }, function(obj) {
+      console.log("Connect Success : " + JSON.stringify(obj));
+    });
+  };
 
   $rootScope.reconnect =function(address) {
-    var params = {address:address};
+    var params = {address:address, timeout: 5000};
 
     console.log("Reconnect : " + JSON.stringify(params));
 
-    $cordovaBluetoothLE.reconnect(params).then(null, reconnectError, reconnectSuccess);
-  }
-
-  function reconnectSuccess(obj) {
-    console.log("Reconnect Success : " + JSON.stringify(obj));
-
-    if (obj.status == "connected")
-    {
-      console.log("Connected");
-    }
-    else if (obj.status == "connecting")
-    {
-      console.log("Connecting");
-    }
-    else
-    {
-      console.log("Unexpected Reconnect Status");
-    }
-  }
-
-  function reconnectError(obj) {
-    console.log("Reconnect Error : " + JSON.stringify(obj));
-  }
+    $cordovaBluetoothLE.reconnect(params).then(null, function(obj) {
+      console.log("Reconnect Error : " + JSON.stringify(obj));
+      $rootScope.close(address); //Best practice is to close on connection error
+    }, function(obj) {
+      console.log("Reconnect Success : " + JSON.stringify(obj));
+    });
+  };
 
   $rootScope.disconnect = function(address) {
     var params = {address:address};
 
     console.log("Disconnect : " + JSON.stringify(params));
 
-    $cordovaBluetoothLE.disconnect(params).then(null, disconnectError, disconnectSuccess);
-  }
-
-  function disconnectSuccess(obj) {
-    console.log("Disconnect Success : " + JSON.stringify(obj));
-
-    if (obj.status == "disconnected")
-    {
-      console.log("Disconnected");
-    }
-    else if (obj.status == "disconnecting")
-    {
-      console.log("Disconnecting");
-    }
-    else
-    {
-      console.log("Unexpected Disconnect Status");
-    }
-  }
-
-  function disconnectError(obj) {
-    console.log("Disconnect Error : " + JSON.stringify(obj));
-  }
+    $cordovaBluetoothLE.disconnect(params).then(function(obj) {
+      console.log("Disconnect Success : " + JSON.stringify(obj));
+    }, function(obj) {
+      console.log("Disconnect Error : " + JSON.stringify(obj));
+    });
+  };
 
   $rootScope.close = function(address) {
     var params = {address:address};
 
     console.log("Close : " + JSON.stringify(params));
 
-    $cordovaBluetoothLE.close(params).then(closeSuccess, closeError);
+    $cordovaBluetoothLE.close(params).then(function(obj) {
+     console.log("Close Success : " + JSON.stringify(obj));
+    }, function(obj) {
+      console.log("Close Error : " + JSON.stringify(obj));
+    });
 
     var device = $rootScope.devices[address];
     device.services = {};
-  }
-
-  function closeSuccess(obj) {
-    console.log("Close Success : " + JSON.stringify(obj));
-
-    if (obj.status == "closed")
-    {
-      console.log("Closed");
-    }
-    else
-    {
-      console.log("Unexpected Close Status");
-    }
-  }
-
-  function closeError(obj) {
-    console.log("Close Error : " + JSON.stringify(obj));
-  }
+  };
 
   $rootScope.discover = function(address) {
-    var params = {address:address};
+    var params = {
+      address:address,
+      timeout: 5000
+    };
 
     console.log("Discover : " + JSON.stringify(params));
 
-    $cordovaBluetoothLE.discover(params).then(discoverSuccess, discoverError);
-  }
-
-  function discoverSuccess(obj) {
-    console.log("Discover Success : " + JSON.stringify(obj));
-
-    if (obj.status == "discovered")
-    {
-      console.log("Discovered");
+    $cordovaBluetoothLE.discover(params).then(function(obj) {
+      console.log("Discover Success : " + JSON.stringify(obj));
 
       var device = $rootScope.devices[obj.address];
 
       var services = obj.services;
 
-      for (var i = 0; i < services.length; i++)
-      {
+      for (var i = 0; i < services.length; i++) {
         var service = services[i];
 
-        $rootScope.addService(service.serviceUuid, device)
+        addService(service, device);
 
-        var serviceNew = device.services[service.serviceUuid];
+        var serviceNew = device.services[service.uuid];
 
         var characteristics = service.characteristics;
 
-        for (var j = 0; j < characteristics.length; j++)
-        {
+        for (var j = 0; j < characteristics.length; j++) {
           var characteristic = characteristics[j];
 
-          $rootScope.addCharacteristic(characteristic.characteristicUuid, serviceNew);
+          addCharacteristic(characteristic, serviceNew);
 
-          var characteristicNew = serviceNew.characteristics[characteristic.characteristicUuid];
+          var characteristicNew = serviceNew.characteristics[characteristic.uuid];
 
           var descriptors = characteristic.descriptors;
 
-          for (var k = 0; k < descriptors.length; k++)
-          {
+          for (var k = 0; k < descriptors.length; k++) {
             var descriptor = descriptors[k];
 
-            $rootScope.addDescriptor(descriptor.descriptorUuid, characteristicNew);
+            addDescriptor(descriptor, characteristicNew);
           }
         }
       }
-    }
-    else
-    {
-      console.log("Unexpected Discover Status");
-    }
-  }
+    }, function(obj) {
+      console.log("Discover Error : " + JSON.stringify(obj));
+    });
+  };
 
-  function discoverError(obj) {
-    console.log("Discover Error : " + JSON.stringify(obj));
-  }
-
-  $rootScope.addService = function(uuid, device) {
-    //Check for new advertisement data?
-    if (device.services[uuid] !== undefined) {
+  function addService(service, device) {
+    if (device.services[service.uuid] !== undefined) {
       return;
     }
-    device.services[uuid] = {uuid : uuid, characteristics: {}};
+    device.services[service.uuid] = {uuid : service.uuid, characteristics: {}};
   }
 
-  $rootScope.addCharacteristic = function(uuid, service) {
-    if (service.characteristics[uuid] !== undefined) {
+  function addCharacteristic(characteristic, service) {
+    if (service.characteristics[characteristic.uuid] !== undefined) {
       return;
     }
-    service.characteristics[uuid] = {uuid: uuid, descriptors: {}};
+    service.characteristics[characteristic.uuid] = {uuid: characteristic.uuid, descriptors: {}, properties: characteristic.properties};
   }
 
-  $rootScope.addDescriptor = function(uuid, characteristic) {
-    if (characteristic.descriptors[uuid] !== undefined) {
+  function addDescriptor(descriptor, characteristic) {
+    if (characteristic.descriptors[descriptor.uuid] !== undefined) {
       return;
     }
-    characteristic.descriptors[uuid] = {uuid : uuid};
+    characteristic.descriptors[descriptor.uuid] = {uuid : descriptor.uuid};
   }
 
   $rootScope.services = function(address) {
-    var params = {address:address, serviceUuids:[]};
+    var params = {address:address, services:[]};
 
     console.log("Services : " + JSON.stringify(params));
 
-    $cordovaBluetoothLE.services(params).then(servicesSuccess, servicesError);
-  }
-
-  function servicesSuccess(obj) {
-    console.log("Services Success : " + JSON.stringify(obj));
-
-    if (obj.status == "services")
-    {
-      console.log("Services");
+    $cordovaBluetoothLE.services(params).then(function(obj) {
+      console.log("Services Success : " + JSON.stringify(obj));
 
       var device = $rootScope.devices[obj.address];
 
-      var services = obj.serviceUuids;
-
-      for (var i = 0; i < services.length; i++)
-      {
-        $rootScope.addService(services[i], device);
+      for (var i = 0; i < obj.services.length; i++) {
+        addService({uuid: obj.services[i]}, device);
       }
-    }
-    else
-    {
-      console.log("Unexpected Services Status");
-    }
-  }
+    }, function(obj) {
+      console.log("Services Error : " + JSON.stringify(obj));
+    });
+  };
 
-  function servicesError(obj) {
-    console.log("Services Error : " + JSON.stringify(obj));
-  }
-
-  $rootScope.characteristics = function(address, serviceUuid) {
-    var params = {address:address, serviceUuid:serviceUuid, characteristicUuids:[]};
-
-    console.log($rootScope.selectedService);
+  $rootScope.characteristics = function(address, service) {
+    var params = {address:address, service:service, characteristics:[]};
 
     console.log("Characteristics : " + JSON.stringify(params));
 
-    $cordovaBluetoothLE.characteristics(params).then(characteristicsSuccess, characteristicsError);
-  }
-
-  function characteristicsSuccess(obj) {
-    console.log("Characteristics Success : " + JSON.stringify(obj));
-
-    if (obj.status == "characteristics")
-    {
-      console.log("Characteristics");
+    $cordovaBluetoothLE.characteristics(params).then(function(obj) {
+      console.log("Characteristics Success : " + JSON.stringify(obj));
 
       var device = $rootScope.devices[obj.address];
-      var service = device.services[obj.serviceUuid];
+      var service = device.services[obj.service];
 
-      var characteristics = obj.characteristics;
-
-      for (var i = 0; i < characteristics.length; i++)
-      {
-        $rootScope.addCharacteristic(characteristics[i].characteristicUuid, service);
+      for (var i = 0; i < obj.characteristics.length; i++) {
+        addCharacteristic(obj.characteristics[i], service);
       }
-    }
-    else
-    {
-      console.log("Unexpected Characteristics Status");
-    }
-  }
+    }, function(obj) {
+      console.log("Characteristics Error : " + JSON.stringify(obj));
+    });
+  };
 
-  function characteristicsError(obj) {
-    console.log("Characteristics Error : " + JSON.stringify(obj));
-  }
-
-  $rootScope.descriptors = function(address, serviceUuid, characteristicUuid) {
-    var params = {address:address, serviceUuid:serviceUuid, characteristicUuid:characteristicUuid};
+  $rootScope.descriptors = function(address, service, characteristic) {
+    var params = {address:address, service:service, characteristic:characteristic};
 
     console.log("Descriptors : " + JSON.stringify(params));
 
-    $cordovaBluetoothLE.descriptors(params).then(descriptorsSuccess, descriptorsError);
-  }
-
-  function descriptorsSuccess(obj) {
-    console.log("Descriptors Success : " + JSON.stringify(obj));
-
-    if (obj.status == "descriptors")
-    {
-      console.log("Descriptors");
+    $cordovaBluetoothLE.descriptors(params).then(function(obj) {
+      console.log("Descriptors Success : " + JSON.stringify(obj));
 
       var device = $rootScope.devices[obj.address];
-      var service = device.services[obj.serviceUuid];
-      var characteristic = service.characteristics[obj.characteristicUuid];
+      var service = device.services[obj.service];
+      var characteristic = service.characteristics[obj.characteristic];
 
-      var descriptors = obj.descriptorUuids;
+      var descriptors = obj.descriptors;
 
-      for (var i = 0; i < descriptors.length; i++)
-      {
-        $rootScope.addDescriptor(descriptors[i], characteristic);
+      for (var i = 0; i < descriptors.length; i++) {
+        addDescriptor({uuid: descriptors[i]}, characteristic);
       }
-    }
-    else
-    {
-      console.log("Unexpected Descriptors Status");
-    }
-  }
+    }, function(obj) {
+      console.log("Descriptors Error : " + JSON.stringify(obj));
+    });
+  };
 
-  function descriptorsError(obj) {
-    console.log("Descriptors Error : " + JSON.stringify(obj));
-  }
+  $rootScope.read = function(address, service, characteristic) {
+    var params = {address:address, service:service, characteristic:characteristic, timeout: 2000};
 
-  $rootScope.rssi = function(address) {
-    var params = {address:address};
+    console.log("Read : " + JSON.stringify(params));
 
-    console.log("RSSI : " + JSON.stringify(params));
+    $cordovaBluetoothLE.read(params).then(function(obj) {
+      console.log("Read Success : " + JSON.stringify(obj));
 
-    $cordovaBluetoothLE.rssi(parmas).then(rssiSuccess, rssiError);
-  }
+      var bytes = $cordovaBluetoothLE.encodedStringToBytes(obj.value);
+      console.log("Read : " + bytes[0]);
+    }, function(obj) {
+      console.log("Read Error : " + JSON.stringify(obj));
+    });
+  };
 
-  function rssiSuccess(obj) {
-    console.log("RSSI Success : " + JSON.stringify(obj));
+  $rootScope.subscribe = function(address, service, characteristic) {
+    var params = {
+      address:address,
+      service:service,
+      characteristic:characteristic,
+      timeout: 2000,
+      //subscribeTimeout: 5000
+    };
 
-    if (obj.status == "rssi")
-    {
-      console.log("RSSI");
-    }
-    else
-    {
-      console.log("Unexpected RSSI Status");
-    }
-  }
+    console.log("Subscribe : " + JSON.stringify(params));
 
-  function rssiError(obj) {
-    console.log("RSSI Error : " + JSON.stringify(obj));
-  }
+    $cordovaBluetoothLE.subscribe(params).then(function(obj) {
+      console.log("Subscribe Auto Unsubscribe : " + JSON.stringify(obj));
+    }, function(obj) {
+      console.log("Subscribe Error : " + JSON.stringify(obj));
+    }, function(obj) {
+      console.log("Subscribe Success : " + JSON.stringify(obj));
 
-  $rootScope.mtu = function(address) {
-    var params = {address:address, mtu: 10};
+      if (obj.status == "subscribedResult") {
+        console.log("Subscribed Result");
+      } else if (obj.status == "subscribed") {
+        console.log("Subscribed");
+      } else {
+        console.log("Unexpected Subscribe Status");
+      }
+    });
+  };
 
-    console.log("MTU : " + JSON.stringify(params));
+  $rootScope.unsubscribe = function(address, service, characteristic) {
+    var params = {
+      address:address,
+      service:service,
+      characteristic:characteristic,
+      timeout: 2000
+    };
 
-    $cordovaBluetoothLE.mtu(params).then(mtuSuccess, mtuError);
-  }
+    console.log("Unsubscribe : " + JSON.stringify(params));
 
-  function mtuSuccess(obj) {
-    console.log("MTU Success : " + JSON.stringify(obj));
+    $cordovaBluetoothLE.unsubscribe(params).then(function(obj) {
+      console.log("Unsubscribe Success : " + JSON.stringify(obj));
+    }, function(obj) {
+      console.log("Unsubscribe Error : " + JSON.stringify(obj));
+    });
+  };
 
-    if (obj.status == "mtu")
-    {
-      console.log("MTU");
-    }
-    else
-    {
-      console.log("Unexpected MTU Status");
-    }
-  }
+  $rootScope.write =function(address, service, characteristic, value) {
+    var params = {address:address, service:service, characteristic:characteristic, value:value, timeout: 2000};
 
-  function mtuError(obj) {
-    console.log("MTU Error : " + JSON.stringify(obj));
-  }
+    console.log("Write : " + JSON.stringify(params));
 
+    $cordovaBluetoothLE.write(params).then(function(obj) {
+      console.log("Write Success : " + JSON.stringify(obj));
+    }, function(obj) {
+      console.log("Write Error : " + JSON.stringify(obj));
+    });
+  };
+
+  $rootScope.readDescriptor = function(address, service, characteristic, descriptor) {
+    var params = {address:address, service:service, characteristic:characteristic, descriptor:descriptor, timeout: 2000};
+
+    console.log("Read Descriptor : " + JSON.stringify(params));
+
+    $cordovaBluetoothLE.readDescriptor(params).then(function(obj) {
+      console.log("Read Descriptor Success : " + JSON.stringify(obj));
+    }, function(obj) {
+      console.log("Read Descriptor Error : " + JSON.stringify(obj));
+    });
+  };
+
+  $rootScope.writeDescriptor = function(address, service, characteristic, descriptor, value) {
+    var params = {address:address, service:service, characteristic:characteristic, descriptor:descriptor, value:value, timeout: 2000};
+
+    console.log("Write Descriptor : " + JSON.stringify(params));
+
+    $cordovaBluetoothLE.writeDescriptor(params).then(function(obj) {
+      console.log("Write Descriptor Success : " + JSON.stringify(obj));
+    }, function(obj) {
+      console.log("Write Descriptor Error : " + JSON.stringify(obj));
+    });
+  };
+  
   $rootScope.isConnected = function(address) {
     var params = {address:address};
 
     console.log("Is Connected : " + JSON.stringify(params));
 
-    $cordovaBluetoothLE.isConnected(params).then(isConnectedSuccess, isConnectedError);
-  }
-
-  function isConnectedSuccess(obj) {
-    console.log("Is Connected Success : " + JSON.stringify(obj));
-
-    if (obj.isConnected)
-    {
-      console.log("Is Connected : true");
-    }
-    else
-    {
-      console.log("Is Connected : false");
-    }
-  }
-
-  function isConnectedError(obj) {
-    console.log("Is Connect Error : " + JSON.stringify(obj));
-  }
+    $cordovaBluetoothLE.isConnected(params).then(function(obj) {
+      console.log("Is Connected Success : " + JSON.stringify(obj));
+    }, function(obj) {
+      console.log("Is Connected Error : " + JSON.stringify(obj));
+    });
+  };
 
   $rootScope.isDiscovered = function(address) {
     var params = {address:address};
 
     console.log("Is Discovered : " + JSON.stringify(params));
 
-    $cordovaBluetoothLE.isDiscovered(params).then(isDiscoveredSuccess, isDiscoveredError);
-  }
+    $cordovaBluetoothLE.isDiscovered(params).then(function(obj) {
+      console.log("Is Discovered Success : " + JSON.stringify(obj));
+    }, function(obj) {
+      console.log("Is Discovered Error : " + JSON.stringify(obj));
+    });
+  };
+  
+  $rootScope.rssi = function(address) {
+    var params = {address:address, timeout: 2000};
 
-  function isDiscoveredSuccess(obj) {
-    console.log("Is Discovered Success : " + JSON.stringify(obj));
+    console.log("RSSI : " + JSON.stringify(params));
 
-    if (obj.isDiscovered)
-    {
-      console.log("Is Discovered : true");
-    }
-    else
-    {
-      console.log("Is Discovered : false");
-    }
-  }
+    $cordovaBluetoothLE.rssi(params).then(function(obj) {
+      console.log("RSSI Success : " + JSON.stringify(obj));
+    }, function(obj) {
+      console.log("RSSI Error : " + JSON.stringify(obj));
+    });
+  };
 
-  function isDiscoveredError(obj) {
-    console.log("Is Discovered Error : " + JSON.stringify(obj));
-  }
+  $rootScope.mtu = function(address) {
+    var params = {address:address, mtu: 10, timeout: 2000};
 
+    console.log("MTU : " + JSON.stringify(params));
+
+    $cordovaBluetoothLE.mtu(params).then(function(obj) {
+      console.log("MTU Success : " + JSON.stringify(obj));
+    }, function(obj) {
+      console.log("MTU Error : " + JSON.stringify(obj));
+    });
+  };
+  
   $rootScope.requestConnectionPriority = function(address) {
-    var params = {address:address, connectionPriority:"high"};
+    var params = {address:address, connectionPriority:"high", timeout: 2000};
 
     console.log("Request Connection Priority : " + JSON.stringify(params));
 
-    $cordovaBluetoothLE.requestConnectionPriority(params).then(requestConnectionPrioritySuccess, requestConnectionPriorityError);
-  }
-
-  function requestConnectionPrioritySuccess(obj) {
-    console.log("Request Connection Priority Success : " + JSON.stringify(obj));
-
-    if (obj.status == "connectionPriorityRequested")
-    {
-      console.log("ConnectionPriorityRequested");
-    }
-    else
-    {
-      console.log("Unexpected Request Connection Priority Status");
-    }
-  }
-
-  function requestConnectionPriorityError(obj) {
-    console.log("Request Connection Priority Error : " + JSON.stringify(obj));
-  }
-
-  $rootScope.read = function(address, serviceUuid, characteristicUuid) {
-    var params = {address:address, serviceUuid:serviceUuid, characteristicUuid:characteristicUuid};
-
-    console.log("Read : " + JSON.stringify(params));
-
-    $cordovaBluetoothLE.read(params).then(readSuccess, readError);
-  }
-
-  function readSuccess(obj) {
-    console.log("Read Success : " + JSON.stringify(obj));
-
-    if (obj.status == "read")
-    {
-      //var bytes = $cordovaBluetoothLE.encodedStringToBytes(obj.value);
-      //console.log("Read : " + bytes[0]);
-
-      console.log("Read");
-    }
-    else
-    {
-      console.log("Unexpected Read Status");
-    }
-  }
-
-  function readError(obj) {
-    console.log("Read Error : " + JSON.stringify(obj));
-  }
-
-  $rootScope.subscribe = function(address, serviceUuid, characteristicUuid) {
-    var params = {address:address, serviceUuid:serviceUuid, characteristicUuid:characteristicUuid};
-
-    console.log("Subscribe : " + JSON.stringify(params));
-
-    $cordovaBluetoothLE.subscribe(params).then(null, subscribeError, subscribeSuccess);
-  }
-
-  function subscribeSuccess(obj) {
-    console.log("Subscribe Success : " + JSON.stringify(obj));
-
-    if (obj.status == "subscribedResult")
-    {
-      console.log("Subscribed Result");
-    }
-    else if (obj.status == "subscribed")
-    {
-      console.log("Subscribed");
-    }
-    else
-    {
-      console.log("Unexpected Subscribe Status");
-    }
-  }
-
-  function subscribeError(obj) {
-    console.log("Subscribe Error : " + JSON.stringify(obj));
-  }
-
-  $rootScope.unsubscribe = function(address, serviceUuid, characteristicUuid) {
-    var params = {address:address, serviceUuid:serviceUuid, characteristicUuid:characteristicUuid};
-
-    console.log("Unsubscribe : " + JSON.stringify(params));
-
-    $cordovaBluetoothLE.unsubscribe(params).then(unsubscribeSuccess, unsubscribeError);
-  }
-
-  function unsubscribeSuccess(obj) {
-    console.log("Unsubscribe Success : " + JSON.stringify(obj));
-
-    if (obj.status == "unsubscribed")
-    {
-      console.log("Unsubscribed");
-    }
-    else
-    {
-      console.log("Unexpected Unsubscribe Status");
-    }
-  }
-
-  function unsubscribeError(obj) {
-    console.log("Unsubscribe Error : " + JSON.stringify(obj));
-  }
-
-  $rootScope.write =function(address, serviceUuid, characteristicUuid, value) {
-    var params = {address:address, serviceUuid:serviceUuid, characteristicUuid:characteristicUuid, value:value};
-
-    console.log("Write : " + JSON.stringify(params));
-
-    $cordovaBluetoothLE.write(params).then(writeSuccess, writeError);
-  }
-
-  function writeSuccess(obj) {
-    console.log("Write Success : " + JSON.stringify(obj));
-
-    if (obj.status == "written")
-    {
-      console.log("Written");
-    }
-    else
-    {
-      console.log("Unexpected Write Status");
-    }
-  }
-
-  function writeError(obj) {
-    console.log("Write Error : " + JSON.stringify(obj));
-  }
-
-  $rootScope.readDescriptor = function(address, serviceUuid, characteristicUuid, descriptorUuid) {
-    var params = {address:address, serviceUuid:serviceUuid, characteristicUuid:characteristicUuid, descriptorUuid:descriptorUuid};
-
-    console.log("Read Descriptor : " + JSON.stringify(params));
-
-    $cordovaBluetoothLE.readDescriptor(params).then(readDescriptorSuccess, readDescriptorError);
-  }
-
-  function readDescriptorSuccess(obj) {
-    console.log("Read Descriptor Success : " + JSON.stringify(obj));
-
-    if (obj.status == "readDescriptor")
-    {
-      console.log("Read Descriptor");
-    }
-    else
-    {
-      console.log("Unexpected Read Descriptor Status");
-    }
-  }
-
-  function readDescriptorError(obj) {
-    console.log("Read Descriptor Error : " + JSON.stringify(obj));
-  }
-
-  $rootScope.writeDescriptor = function(address, serviceUuid, characteristicUuid, descriptorUuid, value) {
-    var params = {address:address, serviceUuid:serviceUuid, characteristicUuid:characteristicUuid, descriptorUuid:descriptorUuid, value:value};
-
-    console.log("Write Descriptor : " + JSON.stringify(params));
-
-    $cordovaBluetoothLE.writeDescriptor(params).then(writeDescriptorSuccess, writeDescriptorError);
-  }
-
-  function writeDescriptorSuccess(obj) {
-    console.log("Write Descriptor Success : " + JSON.stringify(obj));
-
-    if (obj.status == "writeDescriptor")
-    {
-      console.log("Write Descriptor");
-    }
-    else
-    {
-      console.log("Unexpected Write Descriptor Status");
-    }
-  }
-
-  function writeDescriptorError(obj) {
-    console.log("Write Descriptor Error : " + JSON.stringify(obj));
-  }
+    $cordovaBluetoothLE.requestConnectionPriority(params).then(function(obj) {
+      console.log("Request Connection Priority Success : " + JSON.stringify(obj));
+    }, function(obj) {
+      console.log("Request Connection Priority Error : " + JSON.stringify(obj));
+    });
+  };
 })
 
 .controller('ServiceCtrl', function($scope, $rootScope, $state, $stateParams, $cordovaBluetoothLE) {
   $scope.$on("$ionicView.beforeEnter", function () {
-    $rootScope.selectedService = $rootScope.selectedDevice.services[$stateParams.serviceUuid];
+    $rootScope.selectedService = $rootScope.selectedDevice.services[$stateParams.service];
   });
 
   $scope.goToCharacteristic = function(characteristic) {
-    $state.go("characteristic", {address:$rootScope.selectedDevice.address, serviceUuid: $rootScope.selectedService.uuid, characteristicUuid: characteristic.uuid});
+    $state.go("characteristic", {address:$rootScope.selectedDevice.address, service: $rootScope.selectedService.uuid, characteristic: characteristic.uuid});
   };
 })
 
 .controller('CharacteristicCtrl', function($scope, $rootScope, $stateParams, $cordovaBluetoothLE) {
   $scope.$on("$ionicView.beforeEnter", function () {
-    $scope.selectedCharacteristic = $rootScope.selectedService.characteristics[$stateParams.characteristicUuid];
+    $scope.selectedCharacteristic = $rootScope.selectedService.characteristics[$stateParams.characteristic];
   });
 })
 
@@ -942,11 +558,3 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
     return value;
   };
 });
-
-String.prototype.format = function() {
-  var args = arguments;
-  return this.replace(/{(\d+)}/g, function(match, number)
-  {
-    return typeof args[number] != 'undefined' ? args[number] : match;
-  });
-}

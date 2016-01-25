@@ -6,10 +6,11 @@
 
     <style>
       small { font-size: 12px; }
+      .strikethrough { text-decoration: line-through !important; }
     </style>
 
     <script src="lib/ionic/js/ionic.bundle.js"></script>
-    <script src="lib/ng-cordova-bluetoothle/dist/ng-cordova-bluetoothle.min.js"></script>
+    <script src="lib/ng-cordova-bluetoothle/ng-cordova-bluetoothle.js"></script>
 
     <script src="cordova.js"></script>
 
@@ -26,6 +27,7 @@
           <h1 class="title">Bluetooth LE</h1>
         </ion-header-bar>
         <ion-content>
+          <h4>Central</h4>
           <div class="row text-center">
             <div class="col"><a class="button button-balanced button-small" ng-click="initialize()">Intialize</a></div>
             <div class="col"><a class="button button-energized button-small" ng-click="enable()">Enable</a></div>
@@ -45,8 +47,8 @@
             <div class="col"><a class="button button-balanced button-small" ng-click="hasPermission()">Has Permission</a></div>
             <div class="col"><a class="button button-balanced button-small" ng-click="requestPermission()">Request Permission</a></div>
           </div>
-          <div ng-hide="isEmpty(devices)">
-            <h2>Devices</h2>
+          <div ng-hide="isEmpty(devices)" ng-cloak>
+            <h4>Devices</h4>
             <ion-list>
               <ion-item ng-repeat="device in devices track by device.address" ng-click="goToDevice(device)" class="item-icon-right">
                 {{device.name | null}}
@@ -86,6 +88,7 @@
             <div class="col"><a class="button button-balanced button-small" ng-click="isDiscovered(selectedDevice.address)">Is Discovered</a></div>
           </div>
           <div class="row text-center">
+            <div class="col"><a class="button button-balanced button-small" ng-click="rssi(selectedDevice.address)">RSSI</a></div>
             <div class="col"><a class="button button-balanced button-small" ng-click="mtu(selectedDevice.address)">MTU</a></div>
             <div class="col"><a class="button button-balanced button-small" ng-click="requestConnectionPriority(selectedDevice.address)">Request Connection Priority</a></div>
           </div>
@@ -137,18 +140,18 @@
             </div>
             <div class="row text-center">
               <div class="col">
-                <a class="button button-balanced button-small" ng-click="read(selectedDevice.address, selectedService.uuid, selectedCharacteristic.uuid)">Read</a>
+                <a class="button button-balanced button-small" ng-click="read(selectedDevice.address, selectedService.uuid, selectedCharacteristic.uuid)" ng-class="{strikethrough:!selectedCharacteristic.properties.read}">Read</a>
               </div>
               <div class="col">
-                <a class="button button-balanced button-small" ng-click="write(selectedDevice.address, selectedService.uuid, selectedCharacteristic.uuid)">Write</a>
+                <a class="button button-balanced button-small" ng-click="write(selectedDevice.address, selectedService.uuid, selectedCharacteristic.uuid)" ng-class="{strikethrough:!selectedCharacteristic.properties.write}">Write</a>
               </div>
             </div>
             <div class="row text-center">
               <div class="col">
-                <a class="button button-balanced button-small" ng-click="subscribe(selectedDevice.address, selectedService.uuid, selectedCharacteristic.uuid)">Subscribe</a>
+                <a class="button button-balanced button-small" ng-click="subscribe(selectedDevice.address, selectedService.uuid, selectedCharacteristic.uuid)" ng-class="{strikethrough:!(selectedCharacteristic.properties.notify || selectedCharacteristic.properties.indicate)}">Subscribe</a>
               </div>
               <div class="col">
-                <a class="button button-energized button-small" ng-click="unsubscribe(selectedDevice.address, selectedService.uuid, selectedCharacteristic.uuid)">Unsubscribe</a>
+                <a class="button button-energized button-small" ng-click="unsubscribe(selectedDevice.address, selectedService.uuid, selectedCharacteristic.uuid)" ng-class="{strikethrough:!(selectedCharacteristic.properties.notify || selectedCharacteristic.properties.indicate)}">Unsubscribe</a>
               </div>
             </div>
             <ion-list>

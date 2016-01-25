@@ -1,8 +1,5 @@
 The MIT License (MIT)
 
-Build files 
-Copyright (c) 2015 Nic Raboy
-
 ng-cordova-bluetoothle.js
 Copyright (c) 2015 Jewelbots Inc.
 
