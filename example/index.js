@@ -160,7 +160,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
     if (obj.status == "scanStarted") {
       return;
     }
-    
+
     if ($rootScope.devices[obj.address] !== undefined) {
       return;
     }
@@ -186,6 +186,16 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
       console.log("Request Permission Success : " + JSON.stringify(obj));
     }, function(obj) {
       console.log("Request Permission Error : " + JSON.stringify(obj));
+    });
+  };
+
+  $rootScope.isLocationEnabled = function() {
+    console.log("Is Location Enabled");
+
+    $cordovaBluetoothLE.isLocationEnabled().then(function(obj) {
+      console.log("Is Location Enabled Success : " + JSON.stringify(obj));
+    }, function(obj) {
+      console.log("Is Location Enabled Error : " + JSON.stringify(obj));
     });
   };
 })
@@ -472,7 +482,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
       console.log("Write Descriptor Error : " + JSON.stringify(obj));
     });
   };
-  
+
   $rootScope.isConnected = function(address) {
     var params = {address:address};
 
@@ -496,7 +506,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
       console.log("Is Discovered Error : " + JSON.stringify(obj));
     });
   };
-  
+
   $rootScope.rssi = function(address) {
     var params = {address:address, timeout: 2000};
 
@@ -520,7 +530,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
       console.log("MTU Error : " + JSON.stringify(obj));
     });
   };
-  
+
   $rootScope.requestConnectionPriority = function(address) {
     var params = {address:address, connectionPriority:"high", timeout: 2000};
 
