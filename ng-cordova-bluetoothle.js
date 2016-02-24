@@ -119,7 +119,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     }
     return q.promise;
   };
-  
+
 
   var connect = function(params) {
     var q = $q.defer();
@@ -215,7 +215,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
       q.reject(errorUnsupported);
     } else {
       var timeout = createTimeout(params, q);
-      
+
       window.bluetoothle.discover(
         function(obj) {
           $timeout.cancel(timeout);
@@ -237,7 +237,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
       q.reject(errorUnsupported);
     } else {
       var timeout = createTimeout(params, q);
-      
+
       window.bluetoothle.services(
         function(obj) {
           $timeout.cancel(timeout);
@@ -259,7 +259,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
       q.reject(errorUnsupported);
     } else {
       var timeout = createTimeout(params, q);
-      
+
       window.bluetoothle.characteristics(
         function(obj) {
           $timeout.cancel(timeout);
@@ -281,7 +281,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
       q.reject(errorUnsupported);
     } else {
       var timeout = createTimeout(params, q);
-      
+
       window.bluetoothle.descriptors(
         function(obj) {
           $timeout.cancel(timeout);
@@ -303,7 +303,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
       q.reject(errorUnsupported);
     } else {
       var timeout = createTimeout(params, q);
-      
+
       window.bluetoothle.read(
         function(obj) {
           $timeout.cancel(timeout);
@@ -325,12 +325,12 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
       q.reject(errorUnsupported);
     } else {
       var timeout = createTimeout(params, q);
-      
+
       window.bluetoothle.subscribe(
         function(obj) {
           $timeout.cancel(timeout);
           q.notify(obj);
-          
+
           if (params.subscribeTimeout && obj.status == "subscribed") {
             $timeout(function() {
               window.bluetoothle.unsubscribe(
@@ -361,7 +361,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
       q.reject(errorUnsupported);
     } else {
       var timeout = createTimeout(params, q);
-      
+
       window.bluetoothle.unsubscribe(
         function(obj) {
           $timeout.cancel(timeout);
@@ -383,7 +383,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
       q.reject(errorUnsupported);
     } else {
       var timeout = createTimeout(params, q);
-      
+
       window.bluetoothle.write(
         function(obj) {
           $timeout.cancel(timeout);
@@ -405,7 +405,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
       q.reject(errorUnsupported);
     } else {
       var timeout = createTimeout(params, q);
-      
+
       window.bluetoothle.readDescriptor(
         function(obj) {
           $timeout.cancel(timeout);
@@ -427,7 +427,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
       q.reject(errorUnsupported);
     } else {
       var timeout = createTimeout(params, q);
-      
+
       window.bluetoothle.writeDescriptor(
         function(obj) {
           $timeout.cancel(timeout);
@@ -449,7 +449,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
       q.reject(errorUnsupported);
     } else {
       var timeout = createTimeout(params, q);
-      
+
       window.bluetoothle.rssi(
         function(obj) {
           $timeout.cancel(timeout);
@@ -471,7 +471,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
       q.reject(errorUnsupported);
     } else {
       var timeout = createTimeout(params, q);
-      
+
       window.bluetoothle.mtu(
         function(obj) {
           $timeout.cancel(timeout);
@@ -493,7 +493,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
       q.reject(errorUnsupported);
     } else {
       var timeout = createTimeout(params, q);
-      
+
       window.bluetoothle.requestConnectionPriority(
         function(obj) {
           $timeout.cancel(timeout);
@@ -623,6 +623,40 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     return q.promise;
   };
 
+  var isLocationEnabled = function() {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.isLocationEnabled(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        }
+      );
+    }
+    return q.promise;
+  };
+
+  var requestLocationEnabled = function() {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.requestLocationEnabled(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        }
+      );
+    }
+    return q.promise;
+  };
+
 
   var encodedStringToBytes = function(value) {
     if (window.bluetoothle === undefined) {
@@ -651,7 +685,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     }
     return window.bluetoothle.bytesToString(value);
   };
-  
+
   var createTimeout = function(params, q) {
     if (params.timeout) {
       return $timeout(function() {
@@ -669,7 +703,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     startScan: startScan,
     stopScan: stopScan,
     retrieveConnected: retrieveConnected,
-    
+
     connect: connect,
     reconnect: reconnect,
     disconnect: disconnect,
@@ -687,16 +721,18 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     rssi: rssi,
     mtu: mtu,
     requestConnectionPriority: requestConnectionPriority,
-    
+
     isInitialized: isInitialized,
     isEnabled: isEnabled,
     isScanning: isScanning,
     isConnected: isConnected,
     isDiscovered: isDiscovered,
-    
+
     hasPermission: hasPermission,
     requestPermission: requestPermission,
-    
+    isLocationEnabled: isLocationEnabled,
+    requestLocationEnabled: requestLocationEnabled,
+
     encodedStringToBytes: encodedStringToBytes,
     bytesToEncodedString: bytesToEncodedString,
     stringToBytes: stringToBytes,
