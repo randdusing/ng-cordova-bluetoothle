@@ -87,40 +87,41 @@ Connect uses the notify callback as well since the connection state may change. 
 ## Available Functions
 For details on each function, please visit https://github.com/randdusing/cordova-plugin-bluetoothle. A few methods require you wait for notify rather than resolve since the callback may be called multiple times: intialize, startScan, connect, reconnect, disconnect, subscribe. Enable and disable only wait for error since the "success" is returned to the initialize
 
-$cordovaBluetoothLE.initialize(params).then(null, error, success);
-$cordovaBluetoothLE.enable().then(null, error); **Android**
-$cordovaBluetoothLE.disable().then(null, error); **Android**
-$cordovaBluetoothLE.startScan(params).then(null, error, success);
-$cordovaBluetoothLE.stopScan().then(success, error);
-$cordovaBluetoothLE.retrieveConnected(params).then(success, error);
-$cordovaBluetoothLE.connect(params).then(null, error, success);
-$cordovaBluetoothLE.reconnect(params).then(null, error, success);
-$cordovaBluetoothLE.disconnect(params).then(null, error, success);
-$cordovaBluetoothLE.close(params).then(success, error);
-$cordovaBluetoothLE.discover(params).then(success, error);
-$cordovaBluetoothLE.services(params).then(success, error); **iOS**
-$cordovaBluetoothLE.characteristics(params).then(success, error); **iOS**
-$cordovaBluetoothLE.descriptors(params).then(success, error); **iOS**
-$cordovaBluetoothLE.read(params).then(success, error);
-$cordovaBluetoothLE.subscribe(params).then(null, error, success);
-$cordovaBluetoothLE.unsubscribe(params).then(success, error);
-$cordovaBluetoothLE.write(params).then(success, error);
-$cordovaBluetoothLE.readDescriptor(params).then(success, error);
-$cordovaBluetoothLE.writeDescriptor(params).then(success, error);
-$cordovaBluetoothLE.rssi(params).then(success, error);
-$cordovaBluetoothLE.mtu(params).then(success, error); **Android**
-$cordovaBluetoothLE.requestConnectionPriority(params).then(success, error); **Android**
-$cordovaBluetoothLE.isInitialized(params).then(success);
-$cordovaBluetoothLE.isEnabled(params).then(success);
-$cordovaBluetoothLE.isScanning(params).then(success);
-$cordovaBluetoothLE.isConnected(params).then(success, error);
-$cordovaBluetoothLE.isDiscovered(params).then(success, error);
-$cordovaBluetoothLE.hasPermission().then(success, error); **Android 6.0+**
-$cordovaBluetoothLE.requestPermission().then(success, error); **Android 6.0+**
-$cordovaBluetoothLE.encodedStringToBytes(encodedString);
-$cordovaBluetoothLE.bytesToEncodedString(bytes);
-$cordovaBluetoothLE.stringToBytes(string);
-$cordovaBluetoothLE.bytesToString(bytes);
+* $cordovaBluetoothLE.initialize(params).then(null, error, success);
+* $cordovaBluetoothLE.enable().then(null, error); **Android**
+* $cordovaBluetoothLE.disable().then(null, error); **Android**
+* $cordovaBluetoothLE.startScan(params).then(null, error, success);
+* $cordovaBluetoothLE.stopScan().then(success, error);
+* $cordovaBluetoothLE.retrieveConnected(params).then(success, error);
+* $cordovaBluetoothLE.connect(params).then(null, error, success);
+* $cordovaBluetoothLE.reconnect(params).then(null, error, success);
+* $cordovaBluetoothLE.disconnect(params).then(null, error, success);
+* $cordovaBluetoothLE.close(params).then(success, error);
+* $cordovaBluetoothLE.discover(params).then(success, error);
+* $cordovaBluetoothLE.services(params).then(success, error); **iOS**
+* $cordovaBluetoothLE.characteristics(params).then(success, error); **iOS**
+* $cordovaBluetoothLE.descriptors(params).then(success, error); **iOS**
+* $cordovaBluetoothLE.read(params).then(success, error);
+* $cordovaBluetoothLE.subscribe(params).then(null, error, success);
+* $cordovaBluetoothLE.unsubscribe(params).then(success, error);
+* $cordovaBluetoothLE.write(params).then(success, error);
+* $cordovaBluetoothLE.readDescriptor(params).then(success, error);
+* $cordovaBluetoothLE.writeDescriptor(params).then(success, error);
+* $cordovaBluetoothLE.rssi(params).then(success, error);
+* $cordovaBluetoothLE.mtu(params).then(success, error); **Android**
+* $cordovaBluetoothLE.requestConnectionPriority(params).then(success, error); **Android**
+* $cordovaBluetoothLE.isInitialized(params).then(success);
+* $cordovaBluetoothLE.isEnabled(params).then(success);
+* $cordovaBluetoothLE.isScanning(params).then(success);
+* $cordovaBluetoothLE.isConnected(params).then(success, error);
+* $cordovaBluetoothLE.isDiscovered(params).then(success, error);
+* $cordovaBluetoothLE.hasPermission().then(success, error); **Android 6.0+**
+* $cordovaBluetoothLE.requestPermission().then(success, error); **Android 6.0+**
+* $cordovaBluetoothLE.isLocationEnabled().then(success, error); **Android 6.0+**
+* $cordovaBluetoothLE.encodedStringToBytes(encodedString);
+* $cordovaBluetoothLE.bytesToEncodedString(bytes);
+* $cordovaBluetoothLE.stringToBytes(string);
+* $cordovaBluetoothLE.bytesToString(bytes);
 
 ### Options ###
 * useResolve - If true, forces connect and reconnect to resolve the promise rather than using notify.
