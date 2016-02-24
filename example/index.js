@@ -198,16 +198,6 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
       console.log("Is Location Enabled Error : " + JSON.stringify(obj));
     });
   };
-
-  $rootScope.requestLocationEnabled = function() {
-    console.log("Request Location Enabled");
-
-    $cordovaBluetoothLE.requestLocationEnabled().then(function(obj) {
-      console.log("Request Location Enabled Success : " + JSON.stringify(obj));
-    }, function(obj) {
-      console.log("Request Location Enabled Error : " + JSON.stringify(obj));
-    });
-  };
 })
 
 .controller('DeviceCtrl', function($scope, $rootScope, $state, $stateParams, $ionicHistory, $cordovaBluetoothLE) {
