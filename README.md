@@ -9,6 +9,11 @@ This wraps the [Bluetooth Low Energy Phonegap Plugin](https://github.com/randdus
 * Install the Bluetooth LE Plugin: ``` cordova plugin add cordova-plugin-bluetoothle ```
 * Install the Angular Wrapper: ``` bower install git://github.com/randdusing/ng-cordova-bluetoothle.git#master ```
 
+## 4.0.0 Beta ##
+The 4.0.0-dev branch includes server support. Note, this shouldn't be used in production! Current code isn't well tested and still needs improvements to code and documentation.
+
+* Install the Bluetooth LE Plugin: ``` cordova plugin add https://github.com/randdusing/cordova-plugin-bluetoothle.git#4.0.0-dev ```
+* Install the Angular Wrapper: ``` bower install git://github.com/randdusing/ng-cordova-bluetoothle.git#4.0.0-dev ```
 
 
 ### Example App
@@ -118,6 +123,15 @@ For details on each function, please visit https://github.com/randdusing/cordova
 * $cordovaBluetoothLE.hasPermission().then(success, error); **Android 6.0+**
 * $cordovaBluetoothLE.requestPermission().then(success, error); **Android 6.0+**
 * $cordovaBluetoothLE.isLocationEnabled().then(success, error); **Android 6.0+**
+* $cordovaBluetoothLE.initializePeripheral(params).then(success, error);
+* $cordovaBluetoothLE.addService(params).then(success, error);
+* $cordovaBluetoothLE.removeService(params).then(success, error);
+* $cordovaBluetoothLE.removeAllServices().then(success, error);
+* $cordovaBluetoothLE.startAdvertising().then(success, error);
+* $cordovaBluetoothLE.stopAdvertising().then(success, error);
+* $cordovaBluetoothLE.isAdvertising().then(success, error);
+* $cordovaBluetoothLE.respondToRequest(params).then(success, error);
+* $cordovaBluetoothLE.updateValue(params).then(success, error);
 * $cordovaBluetoothLE.encodedStringToBytes(encodedString);
 * $cordovaBluetoothLE.bytesToEncodedString(bytes);
 * $cordovaBluetoothLE.stringToBytes(string);

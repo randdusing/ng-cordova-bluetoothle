@@ -1,4 +1,5 @@
-# Change Log
+## 4.0.0-dev - 2016-03-09
+- Add support for server side functions
 
 ## 3.1.0 - 2016-02-23
 - Add support for isLocationEnabled

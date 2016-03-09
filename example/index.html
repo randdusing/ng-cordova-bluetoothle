@@ -7,6 +7,8 @@
     <style>
       small { font-size: 12px; }
       .strikethrough { text-decoration: line-through !important; }
+      .log .item { padding: 0; font-size: 12px; }
+      .log .item-body { padding: 5px; }
     </style>
 
     <script src="lib/ionic/js/ionic.bundle.js"></script>
@@ -21,13 +23,29 @@
 
     <ion-nav-view></ion-nav-view>
 
-    <script type=text/ng-template id=home.html>
+    <script type=text/ng-template id=tabs.html>
+      <ion-tabs class="tabs-icon-top tabs-color-active-positive">
+
+        <ion-tab title="Central" icon-off="ion-bluetooth" icon-on="ion-bluetooth" ui-sref="tab.central">
+          <ion-nav-view name="tab-central"></ion-nav-view>
+        </ion-tab>
+
+        <ion-tab title="Peripheral" icon-off="ion-bluetooth" icon-on="ion-bluetooth" ui-sref="tab.peripheral">
+          <ion-nav-view name="tab-peripheral"></ion-nav-view>
+        </ion-tab>
+
+        <ion-tab title="Log" icon-off="ion-document" icon-on="ion-document" ui-sref="tab.log">
+          <ion-nav-view name="tab-log"></ion-nav-view>
+        </ion-tab>
+      </ion-tabs>
+    </script>
+
+    <script type=text/ng-template id=central.html>
       <ion-view>
         <ion-header-bar align-title="center" class="bar-positive">
-          <h1 class="title">Bluetooth LE</h1>
+          <h1 class="title">Central</h1>
         </ion-header-bar>
         <ion-content>
-          <h4>Central</h4>
           <div class="row text-center">
             <div class="col"><a class="button button-balanced button-small" ng-click="initialize()">Intialize</a></div>
             <div class="col"><a class="button button-energized button-small" ng-click="enable()">Enable</a></div>
@@ -49,12 +67,13 @@
             <div class="col"><a class="button button-balanced button-small" ng-click="isLocationEnabled()">Is Location Enabled</a></div>
           </div>
           <div ng-hide="isEmpty(devices)" ng-cloak>
-            <h4>Devices</h4>
+            <h4>Devices <a class="button button-assertive button-small" ng-click="clear()">Clear</a></h4>
             <ion-list>
               <ion-item ng-repeat="device in devices track by device.address" ng-click="goToDevice(device)" class="item-icon-right">
                 {{device.name | null}}
                 <div><small>&lt;{{device.address}}&gt;</small></div>
                 <i class="icon ion-chevron-right"></i>
+                <ion-option-button class="button-assertive" ng-click="delete(device.address)">Delete</ion-option-button>
               </ion-item>
             </ion-list>
           </div>
@@ -168,6 +187,49 @@
                 </div>
               </ion-item>
             </ion-list>
+        </ion-content>
+      </ion-view>
+    </script>
+
+    <script type=text/ng-template id=peripheral.html>
+      <ion-view>
+        <ion-header-bar align-title="center" class="bar-positive">
+          <h1 class="title">Peripheral</h1>
+        </ion-header-bar>
+        <ion-content>
+          <div class="row text-center">
+            <div class="col"><a class="button button-balanced button-small" ng-click="initializePeripheral()">Intialize Peripheral</a></div>
+          </div>
+          <div class="row text-center">
+            <div class="col"><a class="button button-balanced button-small" ng-click="addService()">Add Service</a></div>
+            <div class="col"><a class="button button-assertive button-small" ng-click="removeService()">Remove Service</a></div>
+            <div class="col"><a class="button button-assertive button-small" ng-click="removeAllServices()">Remove All Services</a></div>
+          </div>
+          <div class="row text-center">
+            <div class="col"><a class="button button-balanced button-small" ng-click="startAdvertising()">Start Advertising</a></div>
+            <div class="col"><a class="button button-assertive button-small" ng-click="stopAdvertising()">Stop Advertising</a></div>
+            <div class="col"><a class="button button-balanced button-small" ng-click="isAdvertising()">Is Advertising</a></div>
+          </div>
+        </ion-content>
+      </ion-view>
+    </script>
+
+    <script type=text/ng-template id=log.html>
+      <ion-view>
+        <ion-header-bar align-title="center" class="bar-positive">
+          <h1 class="title">Log</h1>
+          <div class="buttons">
+            <button class="button" ng-click="clear()">Clear</button>
+          </div>
+        </ion-header-bar>
+        <ion-content>
+          <ion-list class="log">
+            <ion-item ng-repeat="item in log">
+              <div class="item-body">
+                <strong>{{item.datetime}}</strong>: {{item.message}}
+              </div>
+            </ion-item>
+          </ion-list>
         </ion-content>
       </ion-view>
     </script>

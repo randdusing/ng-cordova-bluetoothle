@@ -7,6 +7,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     message: "Operation unsupported"
   };
 
+
   var initialize = function(params) {
     var q = $q.defer();
     if (window.bluetoothle === undefined) {
@@ -641,6 +642,166 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
   };
 
 
+  var initializePeripheral = function(params) {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.initializePeripheral(
+        function(obj) {
+          q.notify(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        },
+        params
+      );
+    }
+    return q.promise;
+  };
+
+  var addService = function(params) {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.addService(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        },
+        params
+      );
+    }
+    return q.promise;
+  };
+
+  var removeService = function(params) {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.removeService(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        },
+        params
+      );
+    }
+    return q.promise;
+  };
+
+  var removeAllServices = function() {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.removeAllServices(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        }
+      );
+    }
+    return q.promise;
+  };
+
+  var startAdvertising = function(params) {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.startAdvertising(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        },
+        params
+      );
+    }
+    return q.promise;
+  };
+
+  var stopAdvertising = function() {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.stopAdvertising(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        }
+      );
+    }
+    return q.promise;
+  };
+
+  var isAdvertising = function() {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.isAdvertising(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        }
+      );
+    }
+    return q.promise;
+  };
+
+  var respondToRequest = function(params) {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.respondToRequest(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        },
+        params
+      );
+    }
+    return q.promise;
+  };
+
+  var updateValue = function(params) {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.updateValue(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        },
+        params
+      );
+    }
+    return q.promise;
+  };
+
+
   var encodedStringToBytes = function(value) {
     if (window.bluetoothle === undefined) {
       return;
@@ -714,6 +875,16 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     hasPermission: hasPermission,
     requestPermission: requestPermission,
     isLocationEnabled: isLocationEnabled,
+
+    initializePeripheral: initializePeripheral,
+    addService: addService,
+    removeService: removeService,
+    removeAllServices: removeAllServices,
+    startAdvertising: startAdvertising,
+    stopAdvertising: stopAdvertising,
+    isAdvertising: isAdvertising,
+    respondToRequest: respondToRequest,
+    updateValue: updateValue,
 
     encodedStringToBytes: encodedStringToBytes,
     bytesToEncodedString: bytesToEncodedString,
