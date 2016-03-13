@@ -765,12 +765,12 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     return q.promise;
   };
 
-  var respondToRequest = function(params) {
+  var respond = function(params) {
     var q = $q.defer();
     if (window.bluetoothle === undefined) {
       q.reject(errorUnsupported);
     } else {
-      window.bluetoothle.respondToRequest(
+      window.bluetoothle.respond(
         function(obj) {
           q.resolve(obj);
         },
@@ -783,12 +783,12 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     return q.promise;
   };
 
-  var updateValue = function(params) {
+  var notify = function(params) {
     var q = $q.defer();
     if (window.bluetoothle === undefined) {
       q.reject(errorUnsupported);
     } else {
-      window.bluetoothle.updateValue(
+      window.bluetoothle.notify(
         function(obj) {
           q.resolve(obj);
         },
@@ -828,6 +828,13 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
       return;
     }
     return window.bluetoothle.bytesToString(value);
+  };
+
+  var bytesToHex = function(value) {
+    if (window.bluetoothle === undefined) {
+      return;
+    }
+    return window.bluetoothle.bytesToHex(value);
   };
 
   var createTimeout = function(params, q) {
@@ -883,12 +890,13 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     startAdvertising: startAdvertising,
     stopAdvertising: stopAdvertising,
     isAdvertising: isAdvertising,
-    respondToRequest: respondToRequest,
-    updateValue: updateValue,
+    respond: respond,
+    notify: notify,
 
     encodedStringToBytes: encodedStringToBytes,
     bytesToEncodedString: bytesToEncodedString,
     stringToBytes: stringToBytes,
-    bytesToString: bytesToString
+    bytesToString: bytesToString,
+    bytesToHex: bytesToHex
   };
 }]);

@@ -5,6 +5,23 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
   $ionicPlatform.ready(function() {
     $state.go("tab.central");
   });
+
+  //Slice shim for iOS
+  Uint8Array.prototype.slice = function(start, end) {
+    if (end === undefined) {
+      end = this.length;
+    }
+    if (end > this.length) {
+      end = this.length;
+    }
+
+    var length = end - start;
+    var out = new Uint8Array(length);
+    for (var i = 0; i < length; i++) {
+      out[i] = this[i + start];
+    }
+    return out;
+  };
 })
 
 .config(function($stateProvider, $urlRouterProvider) {
@@ -59,6 +76,15 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
       }
     }
   })
+ .state('tab.examples', {
+    url: '/examples',
+    views: {
+      'tab-examples': {
+        templateUrl: 'examples.html',
+        controller: 'ExamplesCtrl'
+      }
+    }
+  })
   .state('tab.log', {
     url: '/log',
     views: {
@@ -83,18 +109,18 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
     }
 
     $rootScope.devices = {};
-  }
+  };
 
   $scope.delete = function(address) {
     $cordovaBluetoothLE.close({address: address});
     delete $rootScope.devices[address];
-  }
+  };
 
   $scope.goToDevice = function(device) {
     $state.go("tab.device", {address:device.address});
   };
 
-  $scope.isEmpty = function() {
+  $rootScope.isEmpty = function() {
     if (Object.keys($rootScope.devices).length === 0) {
       return true;
     }
@@ -243,17 +269,17 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
   };
 
   $rootScope.isLocationEnabled = function() {
-    Log.log("Is Location Enabled");
+    Log.add("Is Location Enabled");
 
     $cordovaBluetoothLE.isLocationEnabled().then(function(obj) {
-      Log.log("Is Location Enabled Success : " + JSON.stringify(obj));
+      Log.add("Is Location Enabled Success : " + JSON.stringify(obj));
     }, function(obj) {
-      Log.log("Is Location Enabled Error : " + JSON.stringify(obj));
+      Log.add("Is Location Enabled Error : " + JSON.stringify(obj));
     });
   };
 })
 
-.controller('DeviceCtrl', function($scope, $rootScope, $state, $stateParams, $ionicHistory, $cordovaBluetoothLE, Log) {
+.controller('DeviceCtrl', function($scope, $rootScope, $state, $stateParams, $ionicHistory, $cordovaBluetoothLE, $interval, Log) {
   $scope.$on("$ionicView.beforeEnter", function () {
     $rootScope.selectedDevice = $rootScope.devices[$stateParams.address];
   });
@@ -446,10 +472,11 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
     Log.add("Read : " + JSON.stringify(params));
 
     $cordovaBluetoothLE.read(params).then(function(obj) {
-      //Log.add("Read Success : " + JSON.stringify(obj));
+      Log.add("Read Success : " + JSON.stringify(obj));
 
       var bytes = $cordovaBluetoothLE.encodedStringToBytes(obj.value);
-      Log.add("Read Success ASCII (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToString(bytes));
+      Log.add("ASCII (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToString(bytes));
+      Log.add("HEX (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToHex(bytes));
     }, function(obj) {
       Log.add("Read Error : " + JSON.stringify(obj));
     });
@@ -615,29 +642,10 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
   });
 })
 
-.controller('PeripheralCtrl', function($scope, $rootScope, $stateParams, $interval, $cordovaBluetoothLE, Log) {
-  var length = 512;
-  var readBytes = new Uint8Array(length);
-  var start = 65;
-  for (var i = 0; i < length; i++) {
-    readBytes[i] = start + i;
-  }
-  if (window.cordova) {
-    readBytes = $cordovaBluetoothLE.stringToBytes("Read Hello World");
-  }
+.controller('PeripheralCtrl', function($scope, $rootScope, $stateParams, $interval, $timeout, $cordovaBluetoothLE, Log) {
+  var readBytes = $cordovaBluetoothLE.stringToBytes("Read Hello World");
 
-  //iOS didn't have this...
-  Uint8Array.prototype.slice = function(start, end) {
-    if (end === undefined) {
-      end = this.length;
-    }
-    var length = end - start;
-    var out = new Uint8Array(length);
-    for (var i = 0; i < length; i++) {
-      out[i] = this[i + start];
-    }
-    return out;
-  }
+  $scope.centrals = {};
 
   $rootScope.initializePeripheral = function() {
     var params = {
@@ -653,20 +661,29 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
       Log.add("Initialize Peripheral Success : " + JSON.stringify(obj));
 
       switch (obj.status) {
-        case "readRequestReceived":
-          readRequestReceived(obj);
+        case "readRequested":
+          readRequested(obj);
           break;
-        case "writeRequestReceived":
-          writeRequestReceived(obj);
+        case "writeRequested":
+          writeRequested(obj);
           break;
-        case "subscribedToCharacteristic":
-          subscribedToCharacteristic(obj);
+        case "subscribed":
+          subscribed(obj);
           break;
-        case "unsubscribedToCharacteristic":
-          unsubscribedToCharacteristic(obj);
+        case "unsubscribed":
+          unsubscribed(obj);
           break;
-        case "peripheralManagerIsReadyToUpdateSubscribers":
-          peripheralManagerIsReadyToUpdateSubscribers(obj);
+        case "notificationReady":
+          notificationReady(obj);
+          break;
+        case "connected":
+          connected(obj);
+          break;
+        case "disconnected":
+          disconnected(obj);
+          break;
+        case "mtuChanged":
+          mtuChanged(obj);
           break;
         default:
           break;
@@ -674,8 +691,8 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
     });
   };
 
-  function readRequestReceived(obj) {
-    Log.add("Read Request Received: " + JSON.stringify(obj));
+  function readRequested(obj) {
+    Log.add("Read Requested: " + JSON.stringify(obj));
 
     //TODO send error if necessary
     if (obj.offset > readBytes.length) {
@@ -692,82 +709,103 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
       //code: "invalidHandle", //Adjust error code
     };
 
-    Log.add("Respond To Request: " + JSON.stringify(params));
-    $cordovaBluetoothLE.respondToRequest(params).then(function(obj) {
-      Log.add("Respond to Request Success : " + JSON.stringify(obj));
-    }, function(obj) {
-      Log.add("Respond to Request Error : " + JSON.stringify(obj));
-    });
+    if (obj.address) {
+      params.address = obj.address;
+    }
+
+    respond(params);
   }
 
-  function writeRequestReceived(obj) {
-    Log.add("Write Request Received: " + JSON.stringify(obj));
+  function writeRequested(obj) {
+    Log.add("Write Requested: " + JSON.stringify(obj));
 
-    Log.add("Value: " + $cordovaBluetoothLE.bytesToString($cordovaBluetoothLE.encodedStringToBytes(obj.value)));
-
-    //TODO get value based on service and characteristic
-
-    var bytes = $cordovaBluetoothLE.stringToBytes("Write Hello World");
-
+    var bytes = $cordovaBluetoothLE.encodedStringToBytes(obj.value);
     //TODO send error if necessary
     if (obj.offset > bytes.length) {
       Log.add("Oops, an error occurred");
     }
+
+    Log.add("Value: " + $cordovaBluetoothLE.bytesToString(bytes));
 
     var params = {
       requestId: obj.requestId,
       value: $cordovaBluetoothLE.bytesToEncodedString(bytes),
     };
 
-    Log.add("Respond To Request: " + JSON.stringify(params));
-    $cordovaBluetoothLE.respondToRequest(params).then(function(obj) {
-      Log.add("Respond to Request Success : " + JSON.stringify(obj));
+    if (obj.address) {
+      params.address = obj.address;
+    }
+
+    respond(params);
+  }
+
+  function respond(params) {
+    Log.add("Respond: " + JSON.stringify(params));
+    $cordovaBluetoothLE.respond(params).then(function(obj) {
+      Log.add("Respond Success : " + JSON.stringify(obj));
     }, function(obj) {
-      Log.add("Respond to Request Error : " + JSON.stringify(obj));
+      Log.add("Respond Error : " + JSON.stringify(obj));
     });
   }
 
   var interval = null;
 
-  function subscribedToCharacteristic(obj) {
-    Log.add("Subscribed to Characteristic: " + JSON.stringify(obj));
+  function subscribed(obj) {
+    Log.add("Subscribed: " + JSON.stringify(obj));
 
     //NOTES Maximum length was 155
 
     interval = $interval(function() {
-      var bytes = $cordovaBluetoothLE.stringToBytes("Subscribed!");
-
       var params = {
         service: obj.service,
         characteristic: obj.characteristic,
-        value: $cordovaBluetoothLE.bytesToEncodedString($cordovaBluetoothLE.stringToBytes("Subscribe Hello World")),
+        value: $cordovaBluetoothLE.bytesToEncodedString($cordovaBluetoothLE.stringToBytes("Subscribed!")),
       };
 
-      Log.add("Update Value:" + JSON.stringify(params));
-      $cordovaBluetoothLE.updateValue(params).then(function(obj) {
-        Log.add("Update Value Success : " + JSON.stringify(obj));
+      if (obj.address) {
+        params.address = obj.address;
+      }
+
+      Log.add("Notify:" + JSON.stringify(params));
+      $cordovaBluetoothLE.notify(params).then(function(obj) {
+        Log.add("Notify Success : " + JSON.stringify(obj));
         if (!obj.sent) {
-          Log.add("Subscription queue is busy, stopping subscription");
+          Log.add("Notification queue is busy, stopping subscription");
           //Value wasn't sent
           //Wait until Peripheral Manager Is Ready to Update Subscribers before starting again
           $interval.cancel(interval);
         }
       }, function(obj) {
-        Log.add("Update Value Error : " + JSON.stringify(obj));
+        Log.add("Notify Error : " + JSON.stringify(obj));
       });
     }, 1000);
   }
 
-  function unsubscribedToCharacteristic(obj) {
-    Log.add("Unsubscribed to Characteristic");
+  function unsubscribed(obj) {
+    Log.add("Unsubscribed to Characteristic: " + JSON.stringify(obj));
 
     //TODO Manage this per device
     $interval.cancel(interval);
   }
 
-  function peripheralManagerIsReadyToUpdateSubscribers(obj) {
-    Log.add("Peripheral Manager Is Ready to Update Subscribers");
+  function notificationReady(obj) {
+    Log.add("Notification Ready");
     //Restart sending updates
+  }
+
+  function connected(obj) {
+    $scope.centrals[obj.address] = {
+      address: obj.address,
+      name: obj.name,
+    };
+  }
+
+  function disconnected(obj) {
+    delete $scope.centrals[obj.address];
+  }
+
+  function mtuChanged(obj) {
+    Log.add("MTU Changed:" + JSON.stringify(obj));
   }
 
   $rootScope.addService = function() {
@@ -779,6 +817,8 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
           permissions: {
             readable: true,
             writeable: true,
+            read: true, //TODO Standardize these between iOS and Android
+            write: true,
             //readEncryptionRequired: true,
             //writeEncryptionRequired: true,
           },
@@ -786,7 +826,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
             read: true,
             writeWithoutResponse: true,
             write: true,
-            notify: true,
+            //notify: true,
             indicate: true,
             //authenticatedSignedWrites: true,
             //notifyEncryptionRequired: true,
@@ -833,7 +873,14 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
   $rootScope.startAdvertising = function() {
     var params = {
       services: ["1234"],
+      service: "1234",
       name: "Hello World",
+      mode: "lowLatency",
+      connectable: true,
+      timeout: 500,
+      powerLevel: "high",
+      manufacturerId: 01,
+      manufacturerSpecificData: "Rand",
     };
 
     Log.add("Start Advertising: " + JSON.stringify(params));
@@ -882,7 +929,545 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
   //TODO Automatically scroll to bottom when on LogCtrl page?
 })
 
-.factory('Log', function($rootScope) {
+.controller('ExamplesCtrl', function($scope, $stateParams, $cordovaBluetoothLE, $q, $timeout, $ionicPopup, $ionicListDelegate, $ionicLoading, Log) {
+  $scope.fileSize = 5000;
+  $scope.packetSize = 128;
+  $scope.isNormalWrite = false;
+  $scope.isNotification = true;
+
+  var service = "1234";
+  var characteristic = "ABCD";
+
+  $scope.throughputCentral = function() {
+    var saveDevice = null;
+
+    promptPeripheral().then(function() {
+      return promptFileSize();
+    }).then(function() {
+      return confirmWriteType();
+    }).then(function() {
+      return promptPacketSize();
+    }).then(function() {
+      return confirmNotificationType();
+    }).then(function() {
+      $ionicLoading.show();
+      return checkInitialize();
+    }).then(function() {
+      return find(service);
+    }).then(function(device) {
+      saveDevice = device;
+      return connect(device);
+    }).then(function() {
+      return transfer(saveDevice);
+    }).then(function(msg) {
+      Log.add("Throughput Test Successful: " + msg);
+    }).catch(function(msg) {
+      Log.add("Throughput Test Unsuccessful: " + msg);
+    }).finally(function() {
+      if (saveDevice) {
+        $cordovaBluetoothLE.unsubscribe({
+          address: saveDevice.address,
+          service: service,
+          characteristic: characteristic
+        }).finally(function() {
+          $cordovaBluetoothLE.close({
+            address: saveDevice.address
+          });
+        });
+      }
+      $ionicLoading.hide();
+    });
+  };
+
+  function promptPeripheral() {
+    return $ionicPopup.confirm({
+      title: 'Peripheral Available',
+      template: 'Did you already start the test on the peripheral?',
+      cancelText: "No",
+      okText: "Yes",
+    }).then(function(res) {
+      if (res) {
+        return $q.resolve();
+      } else {
+        return $q.reject("Peripheral must be started first");
+      }
+    });
+  }
+
+  function promptFileSize() {
+    return $ionicPopup.prompt({
+      title: 'File Size',
+      template: 'How many bytes?',
+      inputType: 'number',
+      defaultText: $scope.fileSize,
+    }).then(function(res) {
+      if (res === undefined) {
+        return $q.reject("User didn't define file size");
+      }
+
+      var check = parseInt(res);
+      $scope.fileSize = isNaN(check) ? $scope.fileSize : check;
+
+      if ($scope.fileSize <= 0) {
+        return $q.reject("Packet size must be a positive integer");
+      }
+
+      return $q.resolve();
+    });
+  }
+
+  function promptPacketSize() {
+    return $ionicPopup.prompt({
+      title: 'Packet Size',
+      template: 'How many bytes? Min 1, Max 512',
+      inputType: 'number',
+      defaultText: $scope.packetSize,
+    }).then(function(res) {
+      if (res === undefined) {
+        return $q.reject("User didn't define packet size");
+      }
+
+      var check = parseInt(res);
+      $scope.packetSize = isNaN(check) ? $scope.packetSize : check;
+
+      if ($scope.packetSize <= 0) {
+        return $q.reject("Packet size must be a minimum of 1 byte");
+      }
+
+      if ($scope.packetSize > 512) {
+        return $q.reject("Packet size must be a maximum of 512 bytes");
+      }
+
+      return $q.resolve();
+    });
+  }
+
+  function confirmWriteType() {
+    return $ionicPopup.confirm({
+      title: 'Write Type',
+      template: 'Should the write be normal (rather than without response)?',
+      cancelText: "No",
+      okText: "Yes",
+    }).then(function(res) {
+      $scope.isNormalWrite = res;
+    });
+  }
+
+  function confirmNotificationType() {
+    return $ionicPopup.confirm({
+      title: 'Notification Type',
+      template: 'Should the notification be normal (rather than indication)?',
+      cancelText: "No",
+      okText: "Yes",
+    }).then(function(res) {
+      $scope.isNotification = res;
+    });
+  }
+
+  function checkInitialize() {
+    var q = $q.defer();
+
+    Log.add("Initializing...");
+
+    $cordovaBluetoothLE.isInitialized().then(function(obj) {
+      if (obj.isInitialized) {
+        return q.resolve();
+      } else {
+        $cordovaBluetoothLE.initialize().then(null, function(obj) {
+          return q.reject(obj.message);
+        }, function(obj) {
+          return q.resolve();
+        });
+      }
+    }, function(obj) {
+      return q.reject(obj.message);
+    });
+
+    return q.promise;
+  }
+
+  function find(service) {
+    Log.add("Finding device");
+
+    var q = $q.defer();
+
+    var params = {
+      scanTimeout: 10000
+    };
+
+    if (service) {
+      params.services = [service]; //TODO verify
+    }
+
+    $cordovaBluetoothLE.startScan(params).then(function() {
+      return q.reject("Scan stopped without finding any devices");
+    }, function(obj) {
+      return q.reject(obj.message);
+    }, function(obj) {
+      if (obj.advertisement && obj.advertisement.isConnectable === false) {
+        Log.add("Ignored Scan Result: " + JSON.stringify(obj));
+        return;
+      }
+      if (obj.status == "scanResult") {
+        return q.resolve(obj);
+      }
+    });
+
+    q.promise.finally(function() {
+      $cordovaBluetoothLE.stopScan();
+    });
+
+    return q.promise;
+  }
+
+  function connect(device) {
+    Log.add("Connecting to device: " + device.name + " (" + device.address + ")");
+
+    return $cordovaBluetoothLE.connect({
+      address: device.address,
+      useResolve: true,
+      timeout: 5000,
+    }).then(function() {
+      return $cordovaBluetoothLE.discover({
+        address: device.address,
+        timeout: 5000,
+      });
+    });
+  }
+
+  function generateBytes(size) {
+    var bytes = new Uint8Array(size);
+    for (var i = 0; i < size; i++) {
+      bytes[i] = Math.round(Math.random() * 255);
+    }
+
+    var hash = md5($cordovaBluetoothLE.bytesToString(bytes));
+    Log.add("MD5: " + hash);
+
+    return bytes;
+  }
+
+  function transfer(device) {
+    Log.add("Throughput: beginning transfer");
+    var q = $q.defer();
+
+    var bytes = generateBytes($scope.fileSize);
+
+    var packetCount = 0;
+    var packetTotal = Math.ceil($scope.fileSize / $scope.packetSize);
+
+    var params = {
+      address: device.address,
+      service: service,
+      characteristic: characteristic,
+    };
+
+    var start = null;
+    var writeTimeout = null;
+
+    $cordovaBluetoothLE.subscribe(params).then(null, function(obj) {
+      q.reject(obj.message);
+    }, function(obj) {
+      if (start === null) {
+        start = (new Date()).getTime();
+      }
+
+      $timeout.cancel(writeTimeout);
+
+      if (packetCount >= packetTotal) {
+        /*
+          We need to tell the peripheral when we are done transferring. Under ideal circumstances, we could just use the unsubscribe event, but this could be fired on disconnects or other errors. Instead, we need to write a different characteristic to tell it to end.
+        */
+
+        var diff = ((new Date()).getTime() - start) / 1000;
+        q.resolve("Transfered " + $scope.fileSize/1000 + " KB in " + diff + " seconds with packets up to " + $scope.packetSize + " bytes, " + ($scope.fileSize/1000/diff).toFixed(3) + " KB/s");
+        return;
+      }
+
+      var slice = bytes.slice(packetCount * $scope.packetSize, (packetCount + 1) * $scope.packetSize);
+      var value = $cordovaBluetoothLE.bytesToEncodedString(slice);
+
+      writeTimeout = $timeout(function() {
+        q.reject("Timed out, no response after write");
+      }, 2000);
+
+      write(device, value).catch(function(obj) {
+        q.reject(obj.message);
+      });
+
+      packetCount++;
+    });
+
+    return q.promise;
+  }
+
+  function write(device, value) {
+    var params = {
+      address: device.address,
+      service: service,
+      characteristic: characteristic,
+      value: value
+    };
+
+    if (!$scope.isNormalWrite) {
+      params.type = "noResponse";
+    }
+
+    return $cordovaBluetoothLE.write(params);
+  }
+
+  var file = null; //Keep track of record bytes
+  var finish = null; //Promise to force main to wait
+  var subscriberTimeout = null; //Timeout if no subscriptions are detected
+  var writeTimeout = null; //Timeout if no write occurs. Something may have happened on the client side
+
+  $scope.throughputPeripheral = function() {
+    Log.add("Throughput: Peripheral");
+    file = [];
+
+    finish = $q.defer();
+
+    subscriberTimeout = $timeout(function() {
+      finish.reject("No subscribers");
+    }, 60000);
+
+    checkInitialize().then(function() {
+      return initializePeripheral();
+    }).then(function() {
+      return removeAllServices();
+    }).then(function() {
+      return addService();
+    }).then(function() {
+      return startAdvertising();
+    }).then(function() {
+      return finish.promise;
+    }).then(function(msg) {
+      Log.add("Throughput Test Successful: " + JSON.stringify(msg));
+    }).catch(function(msg) {
+      Log.add("Throughput Test Unsuccessful: " + JSON.stringify(msg));
+    }).finally(function() {
+      stopAdvertising();
+    });
+  };
+
+  //TODO Add throughput statistics similar to central side
+
+  function initializePeripheral() {
+    Log.add("Initializing Peripheral");
+
+    var q = $q.defer();
+
+    $cordovaBluetoothLE.initializePeripheral({}).then(null, function(obj) {
+      q.reject(obj.message);
+    }, function(obj) {
+      q.resolve();
+
+      //Log.add("Throughput: Initialize Peripheral Success : " + JSON.stringify(obj));
+
+      switch (obj.status) {
+        case "writeRequested":
+          writeRequested(obj);
+          break;
+        case "subscribed":
+          subscribed(obj);
+          break;
+        case "unsubscribed":
+          unsubscribed(obj);
+          break;
+        case "notificationReady":
+          notificationReady(obj);
+          break;
+        default:
+          break;
+      }
+    });
+
+    return q.promise;
+  }
+
+  function writeRequested(obj) {
+    //TODO Cleanup this function
+
+    //Log.add("Write Requested: " + JSON.stringify(obj));
+
+    if (file === null) {
+      Log.add("Write Requested when unexpected");
+      return;
+    }
+
+    $timeout.cancel(writeTimeout);
+
+    var bytes = $cordovaBluetoothLE.encodedStringToBytes(obj.value);
+    Array.prototype.push.apply(file, bytes);
+
+    //Log.add("Value: " + $cordovaBluetoothLE.bytesToString(bytes));
+
+    var params = {
+      requestId: obj.requestId,
+      value: $cordovaBluetoothLE.bytesToEncodedString(bytes),
+    };
+
+    //Log.add("Respond: " + JSON.stringify(params));
+    $cordovaBluetoothLE.respond(params).then(function(obj) {
+      //Log.add("Respond Success : " + JSON.stringify(obj));
+    }, function(obj) {
+      Log.add("Respond Error : " + JSON.stringify(obj));
+    });
+
+    params = {
+      service: obj.service,
+      characteristic: obj.characteristic,
+      value: $cordovaBluetoothLE.bytesToEncodedString($cordovaBluetoothLE.stringToBytes("Received")),
+    };
+
+    //Log.add("Notify:" + JSON.stringify(params));
+    $cordovaBluetoothLE.notify(params).then(function(obj) {
+      //Log.add("Notify Success : " + JSON.stringify(obj));
+      if (!obj.sent) {
+        Log.add("Unable to notify");
+      }
+    }, function(obj) {
+      Log.add("Notify Error : " + JSON.stringify(obj));
+    });
+
+    createWriteTimeout();
+  }
+
+  function subscribed(obj) {
+    $timeout.cancel(subscriberTimeout);
+    createWriteTimeout();
+  }
+
+  function unsubscribed(obj) {
+    //This will be called on disconnect as well
+    $timeout.cancel(writeTimeout);
+
+    if (file.length > 0) {
+      var hash = md5($cordovaBluetoothLE.bytesToString(file));
+      finish.resolve("MD5: " + hash + ", Length: " + file.length);
+    } else {
+      finish.reject("No bytes received");
+    }
+  }
+
+  function notificationReady(obj) {
+    Log.add("Throughput: Notification Ready");
+
+    //TODO implement this, but it shouldn't occur unless notifications are being delivered super fast
+  }
+
+  function createWriteTimeout() {
+    writeTimeout = $timeout(function() {
+      finish.reject("Write timed out");
+    }, 10000);
+  }
+
+  function addService() {
+    Log.add("Adding Service");
+
+    var params = {
+      service: "1234",
+      characteristics: [
+        {
+          uuid: "ABCD",
+          permissions: {
+            readable: true,
+            writeable: true,
+          },
+          properties : {
+            writeWithoutResponse: true,
+            write: true,
+            notify: true, //TODO verify notify vs indicate
+            //indicate: true,
+          }
+        }
+      ]
+    };
+
+    return $cordovaBluetoothLE.addService(params);
+  }
+
+  function removeAllServices() {
+    Log.add("Remove All Services");
+    return $cordovaBluetoothLE.removeAllServices();
+  }
+
+  function startAdvertising() {
+    Log.add("Starting advertising");
+
+    var params = {
+      services: ["1234"],
+      name: "Throughput",
+    };
+
+    return $cordovaBluetoothLE.startAdvertising(params);
+  }
+
+  function stopAdvertising() {
+    Log.add("Stopping advertising");
+
+    return $cordovaBluetoothLE.stopAdvertising();
+  }
+
+  $scope.readAll = function() {
+    var saveDevice = null;
+
+    checkInitialize().then(function() {
+      return find();
+    }).then(function(obj) {
+      saveDevice = obj;
+      return connect(obj);
+    }).then(function(obj) {
+      return process(obj);
+    }).then(function() {
+      Log.add("Read All Success!");
+    }).catch(function(msg) {
+      Log.add("Read All Error: " + JSON.stringify(msg));
+    }).finally(function() {
+      if (saveDevice) {
+        $cordovaBluetoothLE.close({address: saveDevice.address});
+      }
+    });
+  };
+
+  function process(device) {
+    var promise = $q.when();
+
+    for (var i = 0; i < device.services.length; i++) {
+      var service = device.services[i];
+
+      for (var j = 0; j < service.characteristics.length; j++) {
+        var characteristic = service.characteristics[j];
+
+        if (characteristic.properties.read) {
+          promise = promise.then(read(device.address, service.uuid, characteristic.uuid));
+        }
+      }
+    }
+
+    return promise;
+  }
+
+  function read(address, service, characteristic) {
+    return function() {
+      var params = {address:address, service:service, characteristic:characteristic, timeout: 2000};
+
+      Log.add("Read : " + JSON.stringify(params));
+
+      return $cordovaBluetoothLE.read(params).then(function(obj) {
+        Log.add("Read Success : " + JSON.stringify(obj));
+
+        var bytes = $cordovaBluetoothLE.encodedStringToBytes(obj.value);
+        Log.add("ASCII (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToString(bytes));
+        Log.add("HEX (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToHex(bytes));
+      }, function(obj) {
+        Log.add("Read Error : " + JSON.stringify(obj));
+      });
+    };
+  }
+})
+
+.factory('Log', function($rootScope, $ionicPopup) {
   $rootScope.log = [];
 
   var add = function(message) {
@@ -890,7 +1475,18 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
     $rootScope.log.push({
       message: message,
       datetime: new Date().toISOString(),
-    })
+    });
+  };
+
+  $rootScope.show = function(item) {
+    var myPopup = $ionicPopup.show({
+      template: item.message,
+      title: 'Log',
+      subTitle: item.datetime,
+      buttons: [
+        { text: 'Cancel' },
+      ]
+    });
   };
 
   var clear = function() {

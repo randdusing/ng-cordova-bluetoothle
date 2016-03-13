@@ -2,6 +2,8 @@
 <html>
 
   <head>
+    <meta http-equiv="Content-Security-Policy" content="default-src * data: grap: 'unsafe-inline' 'unsafe-eval'"> <!-- Prevent whitelist messages on Android. Note, don't use this is in a production app! -->
+
     <link href="lib/ionic/css/ionic.min.css" rel="stylesheet">
 
     <style>
@@ -13,6 +15,7 @@
 
     <script src="lib/ionic/js/ionic.bundle.js"></script>
     <script src="lib/ng-cordova-bluetoothle/ng-cordova-bluetoothle.js"></script>
+    <script src="lib/js-md5/build/md5.min.js"></script>
 
     <script src="cordova.js"></script>
 
@@ -32,6 +35,10 @@
 
         <ion-tab title="Peripheral" icon-off="ion-bluetooth" icon-on="ion-bluetooth" ui-sref="tab.peripheral">
           <ion-nav-view name="tab-peripheral"></ion-nav-view>
+        </ion-tab>
+
+        <ion-tab title="Examples" icon-off="ion-wrench" icon-on="ion-wrench" ui-sref="tab.examples">
+          <ion-nav-view name="tab-examples"></ion-nav-view>
         </ion-tab>
 
         <ion-tab title="Log" icon-off="ion-document" icon-on="ion-document" ui-sref="tab.log">
@@ -210,6 +217,35 @@
             <div class="col"><a class="button button-assertive button-small" ng-click="stopAdvertising()">Stop Advertising</a></div>
             <div class="col"><a class="button button-balanced button-small" ng-click="isAdvertising()">Is Advertising</a></div>
           </div>
+          <div ng-hide="isEmpty(centrals)" ng-cloak>
+            <h4>Connected Centrals</h4>
+            <ion-list>
+              <ion-item ng-repeat="central in centrals track by centrals.address" class="item-icon-right">
+                {{central.address}}
+              </ion-item>
+            </ion-list>
+          </div>
+        </ion-content>
+      </ion-view>
+    </script>
+
+    <script type=text/ng-template id=examples.html>
+      <ion-view>
+        <ion-header-bar align-title="center" class="bar-positive">
+          <h1 class="title">Examples</h1>
+        </ion-header-bar>
+        <ion-content>
+          <ion-list>
+            <ion-item ng-click="throughputCentral()">
+              Throughput (Central)
+            </ion-item>
+            <ion-item ng-click="throughputPeripheral()">
+              Throughput (Peripheral)
+            </ion-item>
+            <ion-item ng-click="readAll()">
+              Read All
+            </ion-item>
+          </ion-list>
         </ion-content>
       </ion-view>
     </script>
@@ -224,7 +260,7 @@
         </ion-header-bar>
         <ion-content>
           <ion-list class="log">
-            <ion-item ng-repeat="item in log">
+            <ion-item collection-repeat="item in log" ng-click="show(item)">
               <div class="item-body">
                 <strong>{{item.datetime}}</strong>: {{item.message}}
               </div>
