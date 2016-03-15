@@ -289,7 +289,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
   };
 
   $rootScope.connect = function(address) {
-    var params = {address:address, timeout: 5000};
+    var params = {address:address, timeout: 10000};
 
     Log.add("Connect : " + JSON.stringify(params));
 
@@ -302,7 +302,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
   };
 
   $rootScope.reconnect =function(address) {
-    var params = {address:address, timeout: 5000};
+    var params = {address:address, timeout: 10000};
 
     Log.add("Reconnect : " + JSON.stringify(params));
 
@@ -343,8 +343,8 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
 
   $rootScope.discover = function(address) {
     var params = {
-      address:address,
-      timeout: 5000
+      address: address,
+      timeout: 10000
     };
 
     Log.add("Discover : " + JSON.stringify(params));
@@ -408,7 +408,11 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
   }
 
   $rootScope.services = function(address) {
-    var params = {address:address, services:[]};
+    var params = {
+      address:address,
+      services:[],
+      timeout: 5000
+    };
 
     Log.add("Services : " + JSON.stringify(params));
 
@@ -426,7 +430,12 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
   };
 
   $rootScope.characteristics = function(address, service) {
-    var params = {address:address, service:service, characteristics:[]};
+    var params = {
+      address: address,
+      service: service,
+      characteristics: [],
+      timeout: 5000
+    };
 
     Log.add("Characteristics : " + JSON.stringify(params));
 
@@ -445,7 +454,12 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
   };
 
   $rootScope.descriptors = function(address, service, characteristic) {
-    var params = {address:address, service:service, characteristic:characteristic};
+    var params = {
+      address: address,
+      service: service,
+      characteristic: characteristic,
+      timeout: 5000
+    };
 
     Log.add("Descriptors : " + JSON.stringify(params));
 
@@ -467,11 +481,12 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
   };
 
   $rootScope.read = function(address, service, characteristic) {
-    var params = {address:address, service:service, characteristic:characteristic, timeout: 2000};
+    var params = {address:address, service:service, characteristic:characteristic, timeout: 5000};
 
     Log.add("Read : " + JSON.stringify(params));
 
     $cordovaBluetoothLE.read(params).then(function(obj) {
+      params.address = address;
       Log.add("Read Success : " + JSON.stringify(obj));
 
       var bytes = $cordovaBluetoothLE.encodedStringToBytes(obj.value);
@@ -487,7 +502,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
       address:address,
       service:service,
       characteristic:characteristic,
-      timeout: 2000,
+      timeout: 5000,
       //subscribeTimeout: 5000
     };
 
@@ -504,6 +519,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
         //Log.add("Subscribed Result");
         var bytes = $cordovaBluetoothLE.encodedStringToBytes(obj.value);
         Log.add("Subscribe Success ASCII (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToString(bytes));
+        Log.add("HEX (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToHex(bytes));
       } else if (obj.status == "subscribed") {
         Log.add("Subscribed");
       } else {
@@ -514,10 +530,10 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
 
   $rootScope.unsubscribe = function(address, service, characteristic) {
     var params = {
-      address:address,
-      service:service,
-      characteristic:characteristic,
-      timeout: 2000
+      address: address,
+      service: service,
+      characteristic: characteristic,
+      timeout: 5000
     };
 
     Log.add("Unsubscribe : " + JSON.stringify(params));
@@ -529,8 +545,14 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
     });
   };
 
-  $rootScope.write =function(address, service, characteristic, value) {
-    var params = {address:address, service:service, characteristic:characteristic, value:value, timeout: 2000};
+  $rootScope.write = function(address, service, characteristic) {
+    var params = {
+      address: address,
+      service: service,
+      characteristic: characteristic,
+      value: $cordovaBluetoothLE.bytesToEncodedString($cordovaBluetoothLE.stringToBytes("Hello World")),
+      timeout: 5000
+    };
 
     Log.add("Write : " + JSON.stringify(params));
 
@@ -542,19 +564,30 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
   };
 
   $rootScope.readDescriptor = function(address, service, characteristic, descriptor) {
-    var params = {address:address, service:service, characteristic:characteristic, descriptor:descriptor, timeout: 2000};
+    var params = {address:address, service:service, characteristic:characteristic, descriptor:descriptor, timeout: 5000};
 
     Log.add("Read Descriptor : " + JSON.stringify(params));
 
     $cordovaBluetoothLE.readDescriptor(params).then(function(obj) {
       Log.add("Read Descriptor Success : " + JSON.stringify(obj));
+
+      var bytes = $cordovaBluetoothLE.encodedStringToBytes(obj.value);
+      Log.add("ASCII (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToString(bytes));
+      Log.add("HEX (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToHex(bytes));
     }, function(obj) {
       Log.add("Read Descriptor Error : " + JSON.stringify(obj));
     });
   };
 
-  $rootScope.writeDescriptor = function(address, service, characteristic, descriptor, value) {
-    var params = {address:address, service:service, characteristic:characteristic, descriptor:descriptor, value:value, timeout: 2000};
+  $rootScope.writeDescriptor = function(address, service, characteristic, descriptor) {
+    var params = {
+      address: address,
+      service: service,
+      characteristic: characteristic,
+      descriptor: descriptor,
+      value: $cordovaBluetoothLE.bytesToEncodedString([1]),
+      timeout: 5000
+    };
 
     Log.add("Write Descriptor : " + JSON.stringify(params));
 
@@ -590,7 +623,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
   };
 
   $rootScope.rssi = function(address) {
-    var params = {address:address, timeout: 2000};
+    var params = {address:address, timeout: 5000};
 
     Log.add("RSSI : " + JSON.stringify(params));
 
@@ -602,7 +635,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
   };
 
   $rootScope.mtu = function(address) {
-    var params = {address:address, mtu: 10, timeout: 2000};
+    var params = {address:address, mtu: 10, timeout: 5000};
 
     Log.add("MTU : " + JSON.stringify(params));
 
@@ -614,7 +647,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
   };
 
   $rootScope.requestConnectionPriority = function(address) {
-    var params = {address:address, connectionPriority:"high", timeout: 2000};
+    var params = {address:address, connectionPriority:"high", timeout: 5000};
 
     Log.add("Request Connection Priority : " + JSON.stringify(params));
 
@@ -642,7 +675,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
   });
 })
 
-.controller('PeripheralCtrl', function($scope, $rootScope, $stateParams, $interval, $timeout, $cordovaBluetoothLE, Log) {
+.controller('PeripheralCtrl', function($scope, $rootScope, $stateParams, $interval, $cordovaBluetoothLE, Log) {
   var readBytes = $cordovaBluetoothLE.stringToBytes("Read Hello World");
 
   $scope.centrals = {};
@@ -1479,7 +1512,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
   };
 
   $rootScope.show = function(item) {
-    var myPopup = $ionicPopup.show({
+   $ionicPopup.show({
       template: item.message,
       title: 'Log',
       subTitle: item.datetime,
