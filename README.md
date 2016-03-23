@@ -113,6 +113,7 @@ For details on each function, please visit https://github.com/randdusing/cordova
 * $cordovaBluetoothLE.subscribe(params).then(null, error, success);
 * $cordovaBluetoothLE.unsubscribe(params).then(success, error);
 * $cordovaBluetoothLE.write(params).then(success, error);
+* $cordovaBluetoothLE.writeQ(params).then(success, error);
 * $cordovaBluetoothLE.readDescriptor(params).then(success, error);
 * $cordovaBluetoothLE.writeDescriptor(params).then(success, error);
 * $cordovaBluetoothLE.rssi(params).then(success, error);
