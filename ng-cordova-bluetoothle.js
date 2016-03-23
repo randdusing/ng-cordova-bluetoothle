@@ -662,6 +662,23 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     return q.promise;
   };
 
+  var requestLocation = function() {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.requestLocation(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        }
+      );
+    }
+    return q.promise;
+  };
+
 
   var encodedStringToBytes = function(value) {
     if (window.bluetoothle === undefined) {
@@ -737,6 +754,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     hasPermission: hasPermission,
     requestPermission: requestPermission,
     isLocationEnabled: isLocationEnabled,
+    requestLocation: requestLocation,
 
     encodedStringToBytes: encodedStringToBytes,
     bytesToEncodedString: bytesToEncodedString,

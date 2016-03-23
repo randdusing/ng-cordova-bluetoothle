@@ -127,6 +127,7 @@ For details on each function, please visit https://github.com/randdusing/cordova
 * $cordovaBluetoothLE.hasPermission().then(success, error); **Android 6.0+**
 * $cordovaBluetoothLE.requestPermission().then(success, error); **Android 6.0+**
 * $cordovaBluetoothLE.isLocationEnabled().then(success, error); **Android 6.0+**
+* $cordovaBluetoothLE.requestLocation().then(success, error); **Android 6.0+**
 * $cordovaBluetoothLE.encodedStringToBytes(encodedString);
 * $cordovaBluetoothLE.bytesToEncodedString(bytes);
 * $cordovaBluetoothLE.stringToBytes(string);
