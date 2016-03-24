@@ -400,6 +400,28 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     return q.promise;
   };
 
+  var writeQ = function(params) {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      var timeout = createTimeout(params, q);
+
+      window.bluetoothle.writeQ(
+        function(obj) {
+          $timeout.cancel(timeout);
+          q.resolve(obj);
+        },
+        function(obj) {
+          $timeout.cancel(timeout);
+          q.reject(obj);
+        },
+        params
+      );
+    }
+    return q.promise;
+  };
+
   var readDescriptor = function(params) {
     var q = $q.defer();
     if (window.bluetoothle === undefined) {
@@ -641,6 +663,23 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     return q.promise;
   };
 
+  var requestLocation = function() {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.requestLocation(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        }
+      );
+    }
+    return q.promise;
+  };
+
 
   var initializePeripheral = function(params) {
     var q = $q.defer();
@@ -867,6 +906,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     subscribe: subscribe,
     unsubscribe: unsubscribe,
     write: write,
+    writeQ: writeQ,
     readDescriptor: readDescriptor,
     writeDescriptor: writeDescriptor,
     rssi: rssi,
@@ -882,6 +922,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     hasPermission: hasPermission,
     requestPermission: requestPermission,
     isLocationEnabled: isLocationEnabled,
+    requestLocation: requestLocation,
 
     initializePeripheral: initializePeripheral,
     addService: addService,

@@ -71,7 +71,10 @@
           <div class="row text-center">
             <div class="col"><a class="button button-balanced button-small" ng-click="hasPermission()">Has Permission</a></div>
             <div class="col"><a class="button button-balanced button-small" ng-click="requestPermission()">Request Permission</a></div>
+          </div>
+          <div class="row text-center">
             <div class="col"><a class="button button-balanced button-small" ng-click="isLocationEnabled()">Is Location Enabled</a></div>
+            <div class="col"><a class="button button-balanced button-small" ng-click="requestLocation()">Request Location</a></div>
           </div>
           <div ng-hide="isEmpty(devices)" ng-cloak>
             <h4>Devices <a class="button button-assertive button-small" ng-click="clear()">Clear</a></h4>
@@ -171,6 +174,9 @@
               </div>
               <div class="col">
                 <a class="button button-balanced button-small" ng-click="write(selectedDevice.address, selectedService.uuid, selectedCharacteristic.uuid)" ng-class="{strikethrough:!selectedCharacteristic.properties.write}">Write</a>
+              </div>
+              <div class="col">
+                <a class="button button-balanced button-small" ng-click="writeQ(selectedDevice.address, selectedService.uuid, selectedCharacteristic.uuid)" ng-class="{strikethrough:!selectedCharacteristic.properties.write}">WriteQ</a>
               </div>
             </div>
             <div class="row text-center">

@@ -277,6 +277,16 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
       Log.add("Is Location Enabled Error : " + JSON.stringify(obj));
     });
   };
+
+  $rootScope.requestLocation = function() {
+    Log.add("Request Location");
+
+    $cordovaBluetoothLE.requestLocation().then(function(obj) {
+      Log.add("Request Location Success : " + JSON.stringify(obj));
+    }, function(obj) {
+      Log.add("Request Location Error : " + JSON.stringify(obj));
+    });
+  };
 })
 
 .controller('DeviceCtrl', function($scope, $rootScope, $state, $stateParams, $ionicHistory, $cordovaBluetoothLE, $interval, Log) {
@@ -563,6 +573,25 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
     });
   };
 
+  $rootScope.writeQ = function(address, service, characteristic) {
+    var params = {
+      address: address,
+      service: service,
+      characteristic: characteristic,
+      value: $cordovaBluetoothLE.bytesToEncodedString($cordovaBluetoothLE.stringToBytes("Hello World Hello World Hello World Hello World Hello World")),
+      type: "noResponse",
+      timeout: 5000
+    };
+
+    Log.add("WriteQ : " + JSON.stringify(params));
+
+    $cordovaBluetoothLE.writeQ(params).then(function(obj) {
+      Log.add("WriteQ Success : " + JSON.stringify(obj));
+    }, function(obj) {
+      Log.add("WriteQ Error : " + JSON.stringify(obj));
+    });
+  };
+
   $rootScope.readDescriptor = function(address, service, characteristic, descriptor) {
     var params = {address:address, service:service, characteristic:characteristic, descriptor:descriptor, timeout: 5000};
 
@@ -571,9 +600,11 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
     $cordovaBluetoothLE.readDescriptor(params).then(function(obj) {
       Log.add("Read Descriptor Success : " + JSON.stringify(obj));
 
-      var bytes = $cordovaBluetoothLE.encodedStringToBytes(obj.value);
-      Log.add("ASCII (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToString(bytes));
-      Log.add("HEX (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToHex(bytes));
+      if (!obj.type || obj.type == "data") {
+        var bytes = $cordovaBluetoothLE.encodedStringToBytes(obj.value);
+        Log.add("ASCII (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToString(bytes));
+        Log.add("HEX (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToHex(bytes));
+      }
     }, function(obj) {
       Log.add("Read Descriptor Error : " + JSON.stringify(obj));
     });
@@ -585,9 +616,15 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
       service: service,
       characteristic: characteristic,
       descriptor: descriptor,
-      value: $cordovaBluetoothLE.bytesToEncodedString([1]),
       timeout: 5000
     };
+
+    if (ionic.Platform.isIOS()) {
+      params.type = "number";
+      params.value = 0;
+    } else {
+      params.value = $cordovaBluetoothLE.bytesToEncodedString($cordovaBluetoothLE.stringToBytes("123"));
+    }
 
     Log.add("Write Descriptor : " + JSON.stringify(params));
 
@@ -859,7 +896,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
             read: true,
             writeWithoutResponse: true,
             write: true,
-            //notify: true,
+            notify: true,
             indicate: true,
             //authenticatedSignedWrites: true,
             //notifyEncryptionRequired: true,
@@ -993,9 +1030,9 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
     }).then(function() {
       return transfer(saveDevice);
     }).then(function(msg) {
-      Log.add("Throughput Test Successful: " + msg);
+      Log.add("Throughput Test Successful: " + JSON.stringify(msg));
     }).catch(function(msg) {
-      Log.add("Throughput Test Unsuccessful: " + msg);
+      Log.add("Throughput Test Unsuccessful: " + JSON.stringify(msg))
     }).finally(function() {
       if (saveDevice) {
         $cordovaBluetoothLE.unsubscribe({

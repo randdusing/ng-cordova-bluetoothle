@@ -12,8 +12,8 @@ This wraps the [Bluetooth Low Energy Phonegap Plugin](https://github.com/randdus
 ## 4.0.0 Beta ##
 The 4.0.0-dev branch includes server support. Note, this shouldn't be used in production! Current code isn't well tested and still needs improvements to code and documentation.
 
-* Install the Bluetooth LE Plugin: ``` cordova plugin add https://github.com/randdusing/cordova-plugin-bluetoothle.git#4.0.0-dev ```
-* Install the Angular Wrapper: ``` bower install git://github.com/randdusing/ng-cordova-bluetoothle.git#4.0.0-dev ```
+* Install the Bluetooth LE Plugin: ``` cordova plugin add https://github.com/randdusing/cordova-plugin-bluetoothle.git#4.0.0-beta.1 ```
+* Install the Angular Wrapper: ``` bower install git://github.com/randdusing/ng-cordova-bluetoothle.git#4.0.0-beta.1 ```
 
 
 ### Example App
@@ -22,7 +22,7 @@ An example app has been created using the Ionic Framework to demonstrate the fun
 
 * Create a new Ionic Project: ionic start test tabs
 * Install the Bluetooth LE plugin: cordova plugin add cordova-plugin-bluetoothle
-* Install the Angular Wrapper: ```bower install git://github.com/randdusing/ng-cordova-bluetoothle.git#4.0.0-dev```
+* Install the Angular Wrapper: ```bower install git://github.com/randdusing/ng-cordova-bluetoothle.git#4.0.0-beta.1```
 * Install crypto-js library if using examples: ```bower install crypto-js```
 * Add contents from /example to /www of the Cordova project, replacing if necessary
 * Build and run the Cordova project
@@ -110,6 +110,7 @@ For details on each function, please visit https://github.com/randdusing/cordova
 * $cordovaBluetoothLE.subscribe(params).then(null, error, success);
 * $cordovaBluetoothLE.unsubscribe(params).then(success, error);
 * $cordovaBluetoothLE.write(params).then(success, error);
+* $cordovaBluetoothLE.writeQ(params).then(success, error);
 * $cordovaBluetoothLE.readDescriptor(params).then(success, error);
 * $cordovaBluetoothLE.writeDescriptor(params).then(success, error);
 * $cordovaBluetoothLE.rssi(params).then(success, error);
@@ -123,6 +124,7 @@ For details on each function, please visit https://github.com/randdusing/cordova
 * $cordovaBluetoothLE.hasPermission().then(success, error); **Android 6.0+**
 * $cordovaBluetoothLE.requestPermission().then(success, error); **Android 6.0+**
 * $cordovaBluetoothLE.isLocationEnabled().then(success, error); **Android 6.0+**
+* $cordovaBluetoothLE.requestLocation().then(success, error); **Android 6.0+**
 * $cordovaBluetoothLE.initializePeripheral(params).then(success, error);
 * $cordovaBluetoothLE.addService(params).then(success, error);
 * $cordovaBluetoothLE.removeService(params).then(success, error);
