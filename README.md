@@ -12,9 +12,8 @@ This wraps the [Bluetooth Low Energy Phonegap Plugin](https://github.com/randdus
 ## 4.0.0 Beta ##
 The 4.0.0-dev branch includes server support. Note, this shouldn't be used in production! Current code isn't well tested and still needs improvements to code and documentation.
 
-* Install the Bluetooth LE Plugin: ``` cordova plugin add https://github.com/randdusing/cordova-plugin-bluetoothle.git#4.0.0-beta.1 ```
-* Install the Angular Wrapper: ``` bower install git://github.com/randdusing/ng-cordova-bluetoothle.git#4.0.0-beta.1 ```
-
+* Install the Bluetooth LE Plugin: ``` cordova plugin add https://github.com/randdusing/cordova-plugin-bluetoothle.git#v4.0.0-beta.1 ```
+* Install the Angular Wrapper: ``` bower install git://github.com/randdusing/ng-cordova-bluetoothle.git#v4.0.0-beta.1 ```
 
 ### Example App
 
@@ -22,7 +21,7 @@ An example app has been created using the Ionic Framework to demonstrate the fun
 
 * Create a new Ionic Project: ionic start test tabs
 * Install the Bluetooth LE plugin: cordova plugin add cordova-plugin-bluetoothle
-* Install the Angular Wrapper: ```bower install git://github.com/randdusing/ng-cordova-bluetoothle.git#4.0.0-beta.1```
+* Install the Angular Wrapper: ```bower install git://github.com/randdusing/ng-cordova-bluetoothle.git#v4.0.0-beta.1```
 * Install crypto-js library if using examples: ```bower install crypto-js```
 * Add contents from /example to /www of the Cordova project, replacing if necessary
 * Build and run the Cordova project
