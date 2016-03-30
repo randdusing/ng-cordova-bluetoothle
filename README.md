@@ -24,9 +24,9 @@ The 4.0.0-dev branch includes server support. Note, this shouldn't be used in pr
 An example app has been created using the Ionic Framework to demonstrate the functionality. To install the example app, follow the steps below:
 
 * Create a new Ionic Project: ionic start test tabs
-* Update Cordova Android to 5.0.0 if necessary: cordova platform update android@5.0.0
 * Install the Bluetooth LE plugin: cordova plugin add cordova-plugin-bluetoothle
-* Install the Angular Wrapper: ```bower install git://github.com/randdusing/ng-cordova-bluetoothle.git#master```
+* Install the Angular Wrapper: ```bower install git://github.com/randdusing/ng-cordova-bluetoothle.git#v4.0.0-beta.1```
+* Install crypto-js library if using examples: ```bower install crypto-js```
 * Add contents from /example to /www of the Cordova project, replacing if necessary
 * Build and run the Cordova project
 
@@ -128,6 +128,15 @@ For details on each function, please visit https://github.com/randdusing/cordova
 * $cordovaBluetoothLE.requestPermission().then(success, error); **Android 6.0+**
 * $cordovaBluetoothLE.isLocationEnabled().then(success, error); **Android 6.0+**
 * $cordovaBluetoothLE.requestLocation().then(success, error); **Android 6.0+**
+* $cordovaBluetoothLE.initializePeripheral(params).then(success, error);
+* $cordovaBluetoothLE.addService(params).then(success, error);
+* $cordovaBluetoothLE.removeService(params).then(success, error);
+* $cordovaBluetoothLE.removeAllServices().then(success, error);
+* $cordovaBluetoothLE.startAdvertising().then(success, error);
+* $cordovaBluetoothLE.stopAdvertising().then(success, error);
+* $cordovaBluetoothLE.isAdvertising().then(success, error);
+* $cordovaBluetoothLE.respond(params).then(success, error);
+* $cordovaBluetoothLE.notify(params).then(success, error);
 * $cordovaBluetoothLE.encodedStringToBytes(encodedString);
 * $cordovaBluetoothLE.bytesToEncodedString(bytes);
 * $cordovaBluetoothLE.stringToBytes(string);
@@ -138,6 +147,13 @@ For details on each function, please visit https://github.com/randdusing/cordova
 * timeout - If set, the operation will timeout with an error after X milliseconds. Available on connect, reconnect, discover, services, characteristics, descriptors, read, subscribe, unsubscribe, write, readDescriptor, writeDescriptor, rssi, mtu, requestConnectionPriority.
 * scanTimeout - On a successful scan start, automatically stop the scan after X milliseconds.
 * subscribeTimeout - On a successful subscribe, automatically unsubscribe after X milliseconds.
+
+### Examples ###
+Some examples are provided to help demonstrate different common scenarios. Looking for more examples? Let me know!
+
+* Throughput (Central) - Transfers a file to another device running Throughput (Peripheral). Make sure to start the Throughput (Peripheral) test first.
+* Throughput (Peripheral) - Receives a file from another device running Throughput (Central).
+* Read All - Scans for first available device, connects to it, discovers it, iterates through all characteristics and reads them, disconnects and finally closes. This provides a good example of promise chains.
 
 ### Queueing Operations ###
 Example of how you could queue up three read operations.

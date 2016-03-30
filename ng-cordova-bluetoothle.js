@@ -7,6 +7,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     message: "Operation unsupported"
   };
 
+
   var initialize = function(params) {
     var q = $q.defer();
     if (window.bluetoothle === undefined) {
@@ -680,6 +681,165 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
   };
 
 
+  var initializePeripheral = function(params) {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.initializePeripheral(
+        function(obj) {
+          q.notify(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        },
+        params
+      );
+    }
+    return q.promise;
+  };
+
+  var addService = function(params) {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.addService(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        },
+        params
+      );
+    }
+    return q.promise;
+  };
+
+  var removeService = function(params) {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.removeService(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        },
+        params
+      );
+    }
+    return q.promise;
+  };
+
+  var removeAllServices = function() {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.removeAllServices(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        }
+      );
+    }
+    return q.promise;
+  };
+
+  var startAdvertising = function(params) {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.startAdvertising(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        },
+        params
+      );
+    }
+    return q.promise;
+  };
+
+  var stopAdvertising = function() {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.stopAdvertising(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        }
+      );
+    }
+    return q.promise;
+  };
+
+  var isAdvertising = function() {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.isAdvertising(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        }
+      );
+    }
+    return q.promise;
+  };
+
+  var respond = function(params) {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.respond(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        },
+        params
+      );
+    }
+    return q.promise;
+  };
+
+  var notify = function(params) {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.notify(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        },
+        params
+      );
+    }
+    return q.promise;
+  };
+
   var encodedStringToBytes = function(value) {
     if (window.bluetoothle === undefined) {
       return;
@@ -706,6 +866,13 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
       return;
     }
     return window.bluetoothle.bytesToString(value);
+  };
+
+  var bytesToHex = function(value) {
+    if (window.bluetoothle === undefined) {
+      return;
+    }
+    return window.bluetoothle.bytesToHex(value);
   };
 
   var createTimeout = function(params, q) {
@@ -755,10 +922,24 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     requestPermission: requestPermission,
     isLocationEnabled: isLocationEnabled,
     requestLocation: requestLocation,
+<<<<<<< HEAD
+=======
+
+    initializePeripheral: initializePeripheral,
+    addService: addService,
+    removeService: removeService,
+    removeAllServices: removeAllServices,
+    startAdvertising: startAdvertising,
+    stopAdvertising: stopAdvertising,
+    isAdvertising: isAdvertising,
+    respond: respond,
+    notify: notify,
+>>>>>>> 4.0.0-dev
 
     encodedStringToBytes: encodedStringToBytes,
     bytesToEncodedString: bytesToEncodedString,
     stringToBytes: stringToBytes,
-    bytesToString: bytesToString
+    bytesToString: bytesToString,
+    bytesToHex: bytesToHex
   };
 }]);
