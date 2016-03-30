@@ -1,5 +1,5 @@
 ## 4.0.0 - 2016-03-30
-- Merged server side
+- Merged server side functions
 
 ## 4.0.0-dev - 2016-03-23
 - Add support for server side functions
