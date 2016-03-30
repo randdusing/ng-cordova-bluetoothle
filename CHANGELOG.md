@@ -10,12 +10,6 @@
 ## 3.2.0 - 2016-03-23
 - Add support for writeQ
 
-## 3.3.0 - 2016-03-23
-- Add support for requestLocation
-
-## 3.2.0 - 2016-03-23
-- Add support for writeQ
-
 ## 3.1.0 - 2016-02-23
 - Add support for isLocationEnabled
 

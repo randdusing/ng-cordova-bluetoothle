@@ -922,8 +922,6 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     requestPermission: requestPermission,
     isLocationEnabled: isLocationEnabled,
     requestLocation: requestLocation,
-<<<<<<< HEAD
-=======
 
     initializePeripheral: initializePeripheral,
     addService: addService,
@@ -934,7 +932,6 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     isAdvertising: isAdvertising,
     respond: respond,
     notify: notify,
->>>>>>> 4.0.0-dev
 
     encodedStringToBytes: encodedStringToBytes,
     bytesToEncodedString: bytesToEncodedString,
