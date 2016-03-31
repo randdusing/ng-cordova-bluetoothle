@@ -114,6 +114,7 @@ For details on each function, please visit https://github.com/randdusing/cordova
 * $cordovaBluetoothLE.isInitialized(params).then(success);
 * $cordovaBluetoothLE.isEnabled(params).then(success);
 * $cordovaBluetoothLE.isScanning(params).then(success);
+* $cordovaBluetoothLE.wasConnected(params).then(success, error);
 * $cordovaBluetoothLE.isConnected(params).then(success, error);
 * $cordovaBluetoothLE.isDiscovered(params).then(success, error);
 * $cordovaBluetoothLE.hasPermission().then(success, error); **Android 6.0+**
