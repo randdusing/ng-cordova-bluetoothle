@@ -889,9 +889,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
         {
           uuid: "ABCD",
           permissions: {
-            readable: true,
-            writeable: true,
-            read: true, //TODO Standardize these between iOS and Android
+            read: true,
             write: true,
             //readEncryptionRequired: true,
             //writeEncryptionRequired: true,
@@ -1453,8 +1451,6 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
         {
           uuid: "ABCD",
           permissions: {
-            readable: true,
-            writeable: true,
             read: true,
             write: true,
           },
