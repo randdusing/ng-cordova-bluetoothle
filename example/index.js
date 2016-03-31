@@ -499,6 +499,10 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
       params.address = address;
       Log.add("Read Success : " + JSON.stringify(obj));
 
+      if (!obj.value) {
+        return;
+      }
+
       var bytes = $cordovaBluetoothLE.encodedStringToBytes(obj.value);
       Log.add("ASCII (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToString(bytes));
       Log.add("HEX (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToHex(bytes));
@@ -600,7 +604,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
     $cordovaBluetoothLE.readDescriptor(params).then(function(obj) {
       Log.add("Read Descriptor Success : " + JSON.stringify(obj));
 
-      if (!obj.type || obj.type == "data") {
+      if (obj.value && (!obj.type || obj.type == "data")) {
         var bytes = $cordovaBluetoothLE.encodedStringToBytes(obj.value);
         Log.add("ASCII (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToString(bytes));
         Log.add("HEX (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToHex(bytes));
@@ -1304,7 +1308,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
     checkInitialize().then(function() {
       return initializePeripheral();
     }).then(function() {
-      return removeAllServices();
+      return removeAllServices(); //TODO fix it
     }).then(function() {
       return addService();
     }).then(function() {
@@ -1377,6 +1381,10 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
       value: $cordovaBluetoothLE.bytesToEncodedString(bytes),
     };
 
+    if (obj.address) {
+      params.address = obj.address;
+    }
+
     //Log.add("Respond: " + JSON.stringify(params));
     $cordovaBluetoothLE.respond(params).then(function(obj) {
       //Log.add("Respond Success : " + JSON.stringify(obj));
@@ -1389,6 +1397,10 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
       characteristic: obj.characteristic,
       value: $cordovaBluetoothLE.bytesToEncodedString($cordovaBluetoothLE.stringToBytes("Received")),
     };
+
+    if (obj.address) {
+      params.address = obj.address;
+    }
 
     //Log.add("Notify:" + JSON.stringify(params));
     $cordovaBluetoothLE.notify(params).then(function(obj) {
@@ -1443,8 +1455,11 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
           permissions: {
             readable: true,
             writeable: true,
+            read: true,
+            write: true,
           },
           properties : {
+            read: true,
             writeWithoutResponse: true,
             write: true,
             notify: true, //TODO verify notify vs indicate
@@ -1466,7 +1481,8 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
     Log.add("Starting advertising");
 
     var params = {
-      services: ["1234"],
+      services: ["1234"], //iOS
+      service: "1234", //Android
       name: "Throughput",
     };
 
@@ -1526,6 +1542,10 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
 
       return $cordovaBluetoothLE.read(params).then(function(obj) {
         Log.add("Read Success : " + JSON.stringify(obj));
+
+        if (!obj.value) {
+          return;
+        }
 
         var bytes = $cordovaBluetoothLE.encodedStringToBytes(obj.value);
         Log.add("ASCII (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToString(bytes));

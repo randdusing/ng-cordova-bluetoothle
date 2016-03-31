@@ -18,7 +18,7 @@ An example app has been created using the Ionic Framework to demonstrate the fun
 * Create a new Ionic Project: ionic start test tabs
 * Install the Bluetooth LE plugin: cordova plugin add cordova-plugin-bluetoothle
 * Install the Angular Wrapper: ```bower install git://github.com/randdusing/ng-cordova-bluetoothle.git#master```
-* Install crypto-js library if using examples: ```bower install crypto-js```
+* Install crypto-js library if using examples: ```bower install js-md5```
 * Add contents from /example to /www of the Cordova project, replacing if necessary
 * Build and run the Cordova project
 
