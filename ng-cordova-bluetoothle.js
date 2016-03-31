@@ -575,6 +575,24 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     return q.promise;
   };
 
+  var wasConnected = function(params) {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.wasConnected(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        },
+        params
+      );
+    }
+    return q.promise;
+  };
+
   var isConnected = function(params) {
     var q = $q.defer();
     if (window.bluetoothle === undefined) {
@@ -915,6 +933,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     isInitialized: isInitialized,
     isEnabled: isEnabled,
     isScanning: isScanning,
+    wasConnected: wasConnected,
     isConnected: isConnected,
     isDiscovered: isDiscovered,
 

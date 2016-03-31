@@ -491,24 +491,36 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
   };
 
   $rootScope.read = function(address, service, characteristic) {
-    var params = {address:address, service:service, characteristic:characteristic, timeout: 5000};
+    //Set this to something higher to verify queueing on read/write
+    var count = 1;
 
-    Log.add("Read : " + JSON.stringify(params));
+    $interval(function() {
+      var params = {address:address, service:service, characteristic:characteristic, timeout: 5000};
 
-    $cordovaBluetoothLE.read(params).then(function(obj) {
-      params.address = address;
-      Log.add("Read Success : " + JSON.stringify(obj));
+      //Uncomment if you'd like to force some errors
+      /*var random = Math.random();
+      if (random < .50) {
+        params.address = "AA:AA:AA:AA:AA:AA";
+      }*/
 
-      if (!obj.value) {
-        return;
-      }
+      Log.add("Read : " + JSON.stringify(params));
 
-      var bytes = $cordovaBluetoothLE.encodedStringToBytes(obj.value);
-      Log.add("ASCII (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToString(bytes));
-      Log.add("HEX (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToHex(bytes));
-    }, function(obj) {
-      Log.add("Read Error : " + JSON.stringify(obj));
-    });
+      $cordovaBluetoothLE.read(params).then(function(obj) {
+        params.address = address;
+        Log.add("Read Success : " + JSON.stringify(obj));
+
+        if (!obj.value) {
+          return;
+        }
+
+        var bytes = $cordovaBluetoothLE.encodedStringToBytes(obj.value);
+        Log.add("ASCII (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToString(bytes));
+        Log.add("HEX (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToHex(bytes));
+      }, function(obj) {
+        Log.add("Read Error : " + JSON.stringify(obj));
+      });
+    }, 1, count);
+
   };
 
   $rootScope.subscribe = function(address, service, characteristic) {
@@ -560,21 +572,31 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
   };
 
   $rootScope.write = function(address, service, characteristic) {
-    var params = {
-      address: address,
-      service: service,
-      characteristic: characteristic,
-      value: $cordovaBluetoothLE.bytesToEncodedString($cordovaBluetoothLE.stringToBytes("Hello World")),
-      timeout: 5000
-    };
+    //Set this to something higher to verify queueing on read/write
+    var count = 1;
 
-    Log.add("Write : " + JSON.stringify(params));
+    $interval(function() {
+      var params = {
+        address: address,
+        service: service,
+        characteristic: characteristic,
+        value: $cordovaBluetoothLE.bytesToEncodedString($cordovaBluetoothLE.stringToBytes("Hello World")),
+        timeout: 5000
+      };
 
-    $cordovaBluetoothLE.write(params).then(function(obj) {
-      Log.add("Write Success : " + JSON.stringify(obj));
-    }, function(obj) {
-      Log.add("Write Error : " + JSON.stringify(obj));
-    });
+      //Uncomment if you'd like to force some errors
+      /*var random = Math.random();
+      if (random < .50) {
+        params.address = "AA:AA:AA:AA:AA:AA";
+      }*/
+
+      Log.add("Write : " + JSON.stringify(params));
+      $cordovaBluetoothLE.write(params).then(function(obj) {
+        Log.add("Write Success : " + JSON.stringify(obj));
+      }, function(obj) {
+        Log.add("Write Error : " + JSON.stringify(obj));
+      });
+    }, 1, count);
   };
 
   $rootScope.writeQ = function(address, service, characteristic) {
@@ -636,6 +658,18 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
       Log.add("Write Descriptor Success : " + JSON.stringify(obj));
     }, function(obj) {
       Log.add("Write Descriptor Error : " + JSON.stringify(obj));
+    });
+  };
+
+  $rootScope.wasConnected = function(address) {
+    var params = {address:address};
+
+    Log.add("Was Connected : " + JSON.stringify(params));
+
+    $cordovaBluetoothLE.wasConnected(params).then(function(obj) {
+      Log.add("Was Connected Success : " + JSON.stringify(obj));
+    }, function(obj) {
+      Log.add("Was Connected Error : " + JSON.stringify(obj));
     });
   };
 
@@ -899,7 +933,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
             writeWithoutResponse: true,
             write: true,
             notify: true,
-            indicate: true,
+            //indicate: true,
             //authenticatedSignedWrites: true,
             //notifyEncryptionRequired: true,
             //indicateEncryptionRequired: true,
@@ -1168,7 +1202,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
     };
 
     if (service) {
-      params.services = [service]; //TODO verify
+      params.services = [service];
     }
 
     $cordovaBluetoothLE.startScan(params).then(function() {
@@ -1306,7 +1340,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
     checkInitialize().then(function() {
       return initializePeripheral();
     }).then(function() {
-      return removeAllServices(); //TODO fix it
+      return removeAllServices();
     }).then(function() {
       return addService();
     }).then(function() {
@@ -1458,7 +1492,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
             read: true,
             writeWithoutResponse: true,
             write: true,
-            notify: true, //TODO verify notify vs indicate
+            notify: true,
             //indicate: true,
           }
         }
