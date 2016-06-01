@@ -61,14 +61,18 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
       var timeout = null;
       if (params.scanTimeout) {
         timeout = $timeout(function() {
-          window.bluetoothle.stopScan(
-            function(obj) {
-              q.resolve(obj);
-            },
-            function(obj) {
-              q.reject(obj);
+          window.bluetoothle.isScanning(function(obj) {
+            if (obj.isScanning) {
+              window.bluetoothle.stopScan(
+                function(obj) {
+                  q.resolve(obj);
+                },
+                function(obj) {
+                  q.reject(obj);
+                }
+              );
             }
-          );
+          });
         }, params.scanTimeout);
       }
 
