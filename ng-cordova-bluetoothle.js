@@ -59,7 +59,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
       q.reject(errorUnsupported);
     } else {
       var timeout = null;
-      if (params.scanTimeout) {
+      if (params && params.scanTimeout) {
         timeout = $timeout(function() {
           window.bluetoothle.isScanning(function(obj) {
             if (obj.isScanning) {
@@ -136,7 +136,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
       window.bluetoothle.connect(
         function(obj) {
           $timeout.cancel(timeout);
-          if (params.useResolve) {
+          if (params && params.useResolve) {
             q.resolve(obj);
           } else {
             q.notify(obj);
@@ -162,7 +162,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
       window.bluetoothle.reconnect(
         function(obj) {
           $timeout.cancel(timeout);
-          if (params.useResolve) {
+          if (params && params.useResolve) {
             q.resolve(obj);
           } else {
             q.notify(obj);
@@ -336,7 +336,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
           $timeout.cancel(timeout);
           q.notify(obj);
 
-          if (params.subscribeTimeout && obj.status == "subscribed") {
+          if (params && params.subscribeTimeout && obj.status == "subscribed") {
             $timeout(function() {
               window.bluetoothle.unsubscribe(
                 function(obj) {
@@ -898,7 +898,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
   };
 
   var createTimeout = function(params, q) {
-    if (params.timeout) {
+    if (params && params.timeout) {
       return $timeout(function() {
         params.error = "timeout";
         q.reject(params);

@@ -1,3 +1,10 @@
+## 4.0.2 - 2016-07-09
+- Check for null parameters, mainly applies to startScan which doesn't necessarily require parameters
+- Don't try to stop scan if already stopped
+
+## 4.0.1 - 2016-04-17
+- Minor fixes to support npm
+
 ## 4.0.0 - 2016-03-30
 - Merged server side functions
 
@@ -17,5 +24,4 @@
 - Sync Angular wrapper's and Cordova plugin's version numbers
 - Timeouts available on most functions
 - Example updated with queueing example
-- Removed build generation. App build process can handle minification.
-
+- Removed build generation. App build process can handle minification
