@@ -93,9 +93,11 @@ For details on each function, please visit https://github.com/randdusing/cordova
 * $cordovaBluetoothLE.startScan(params).then(null, error, success);
 * $cordovaBluetoothLE.stopScan().then(success, error);
 * $cordovaBluetoothLE.retrieveConnected(params).then(success, error);
+* $cordovaBluetoothLE.bond(params).then(null, error, success);
+* $cordovaBluetoothLE.unbond(params).then(success, error);
 * $cordovaBluetoothLE.connect(params).then(null, error, success);
 * $cordovaBluetoothLE.reconnect(params).then(null, error, success);
-* $cordovaBluetoothLE.disconnect(params).then(null, error, success);
+* $cordovaBluetoothLE.disconnect(params).then(success, error);
 * $cordovaBluetoothLE.close(params).then(success, error);
 * $cordovaBluetoothLE.discover(params).then(success, error);
 * $cordovaBluetoothLE.services(params).then(success, error); **iOS**
@@ -114,6 +116,7 @@ For details on each function, please visit https://github.com/randdusing/cordova
 * $cordovaBluetoothLE.isInitialized(params).then(success);
 * $cordovaBluetoothLE.isEnabled(params).then(success);
 * $cordovaBluetoothLE.isScanning(params).then(success);
+* $cordovaBluetoothLE.isBonded(params).then(success);
 * $cordovaBluetoothLE.wasConnected(params).then(success, error);
 * $cordovaBluetoothLE.isConnected(params).then(success, error);
 * $cordovaBluetoothLE.isDiscovered(params).then(success, error);

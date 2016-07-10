@@ -336,6 +336,30 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
     });
   };
 
+  $rootScope.bond = function(address) {
+    var params = {address:address};
+
+    Log.add("Bond : " + JSON.stringify(params));
+
+    $cordovaBluetoothLE.bond(params).then(null, function(obj) {
+      Log.add("Bond Error : " + JSON.stringify(obj));
+    }, function(obj) {
+      Log.add("Bond Success : " + JSON.stringify(obj));
+    });
+  };
+
+  $rootScope.unbond = function(address) {
+    var params = {address:address};
+
+    Log.add("Unbond : " + JSON.stringify(params));
+
+    $cordovaBluetoothLE.unbond(params).then(function(obj) {
+      Log.add("Unbond Success : " + JSON.stringify(obj));
+    }, function(obj) {
+      Log.add("Unbond Error : " + JSON.stringify(obj));
+    });
+  };
+
   $rootScope.close = function(address) {
     var params = {address:address};
 
@@ -658,6 +682,18 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
       Log.add("Write Descriptor Success : " + JSON.stringify(obj));
     }, function(obj) {
       Log.add("Write Descriptor Error : " + JSON.stringify(obj));
+    });
+  };
+  
+  $rootScope.isBonded = function(address) {
+    var params = {address:address};
+
+    Log.add("Is Bonded : " + JSON.stringify(params));
+
+    $cordovaBluetoothLE.isBonded(params).then(function(obj) {
+      Log.add("Is Bonded Success : " + JSON.stringify(obj));
+    }, function(obj) {
+      Log.add("Is Bonded Error : " + JSON.stringify(obj));
     });
   };
 

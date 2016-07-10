@@ -126,6 +126,46 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
   };
 
 
+  var bond = function(params) {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      var timeout = createTimeout(params, q);
+
+      window.bluetoothle.bond(
+        function(obj) {
+          $timeout.cancel(timeout);
+          q.notify(obj);
+        },
+        function(obj) {
+          $timeout.cancel(timeout);
+          q.reject(obj);
+        },
+        params
+      );
+    }
+    return q.promise;
+  };
+
+  var unbond = function(params) {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.unbond(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        },
+        params
+      );
+    }
+    return q.promise;
+  };
+
   var connect = function(params) {
     var q = $q.defer();
     if (window.bluetoothle === undefined) {
@@ -579,6 +619,24 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     return q.promise;
   };
 
+  var isBonded = function(params) {
+    var q = $q.defer();
+    if (window.bluetoothle === undefined) {
+      q.reject(errorUnsupported);
+    } else {
+      window.bluetoothle.isBonded(
+        function(obj) {
+          q.resolve(obj);
+        },
+        function(obj) {
+          q.reject(obj);
+        },
+        params
+      );
+    }
+    return q.promise;
+  };
+
   var wasConnected = function(params) {
     var q = $q.defer();
     if (window.bluetoothle === undefined) {
@@ -915,6 +973,8 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     stopScan: stopScan,
     retrieveConnected: retrieveConnected,
 
+    bond: bond,
+    unbond: unbond,
     connect: connect,
     reconnect: reconnect,
     disconnect: disconnect,
@@ -937,6 +997,7 @@ angular.module('ngCordovaBluetoothLE', []).factory('$cordovaBluetoothLE', ['$q',
     isInitialized: isInitialized,
     isEnabled: isEnabled,
     isScanning: isScanning,
+    isBonded: isBonded,
     wasConnected: wasConnected,
     isConnected: isConnected,
     isDiscovered: isDiscovered,

@@ -102,6 +102,10 @@
         </ion-header-bar>
         <ion-content>
           <div class="row text-center">
+            <div class="col"><a class="button button-balanced button-small" ng-click="bond(selectedDevice.address)">Bond</a></div>
+            <div class="col"><a class="button button-energized button-small" ng-click="unbond(selectedDevice.address)">Unbond</a></div>
+          </div>
+          <div class="row text-center">
             <div class="col"><a class="button button-balanced button-small" ng-click="connect(selectedDevice.address)">Connect</a></div>
             <div class="col"><a class="button button-balanced button-small" ng-click="reconnect(selectedDevice.address)">Reconnect</a></div>
           </div>
@@ -116,6 +120,9 @@
           <div class="row text-center">
             <div class="col"><a class="button button-balanced button-small" ng-click="wasConnected(selectedDevice.address)">Was Connected</a></div>
             <div class="col"><a class="button button-balanced button-small" ng-click="isConnected(selectedDevice.address)">Is Connected</a></div>
+          </div>
+          <div class="row text-center">
+            <div class="col"><a class="button button-balanced button-small" ng-click="isBonded(selectedDevice.address)">Is Bonded</a></div>
             <div class="col"><a class="button button-balanced button-small" ng-click="isDiscovered(selectedDevice.address)">Is Discovered</a></div>
           </div>
           <div class="row text-center">

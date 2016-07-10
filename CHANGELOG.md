@@ -1,3 +1,6 @@
+## 4.2.0 - 2016-07-09
+- Added bond, unbond and isBonded functions
+
 ## 4.0.2 - 2016-07-09
 - Check for null parameters, mainly applies to startScan which doesn't necessarily require parameters
 - Don't try to stop scan if already stopped
