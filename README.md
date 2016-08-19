@@ -3,6 +3,10 @@
 This wraps the [Bluetooth Low Energy Phonegap Plugin](https://github.com/randdusing/cordova-plugin-bluetoothle) by Rand Dusing in AngularJS code so it can be used more easily in AngularJS mobile applications.
 
 
+## Issues ##
+Please only create issues that are directly related to ng-cordova-bluetoothle!
+If it's not an Angular/Javascript issue, create the issue in the [cordova-plugin-bluetoothle](https://github.com/randdusing/cordova-plugin-bluetoothle) repo!
+
 
 ## Installation
 
