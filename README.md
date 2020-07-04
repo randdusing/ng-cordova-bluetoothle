@@ -19,12 +19,12 @@ If it's not an Angular/Javascript issue, create the issue in the [cordova-plugin
 
 An example app has been created using the Ionic Framework to demonstrate the functionality. To install the example app, follow the steps below:
 
-* Create a new Ionic Project: ionic start test tabs
-* Install the Bluetooth LE plugin: cordova plugin add cordova-plugin-bluetoothle
-* Install the Angular Wrapper: ```bower install git://github.com/randdusing/ng-cordova-bluetoothle.git#master```
+* Create a new Ionic Project: ``` ionic start test tabs --type ionic1 ```
+* Install the Bluetooth LE plugin: ``` ionic cordova plugin add cordova-plugin-bluetoothle ```
+* Install the Angular Wrapper: ``` bower install git://github.com/randdusing/ng-cordova-bluetoothle.git#master ```
 * Install crypto-js library if using examples: ```bower install js-md5```
-* Add contents from /example to /www of the Cordova project, replacing if necessary
-* Build and run the Cordova project
+* Add contents from /example to /www of the Cordova project or ``` cp www/lib/ng-cordova-bluetoothle/example/* www ```
+* Build and run the Ionic Cordova project [See Ionic documentation](https://ionicframework.com/docs/v1/getting-started/)
 
 
 

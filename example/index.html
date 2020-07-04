@@ -2,7 +2,9 @@
 <html>
 
   <head>
-    <meta http-equiv="Content-Security-Policy" content="default-src * data: grap: 'unsafe-inline' 'unsafe-eval'"> <!-- Prevent whitelist messages on Android. Note, don't use this is in a production app! -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title>ng-cordova-bluetoothle Example</title>
 
     <link href="lib/ionic/css/ionic.min.css" rel="stylesheet">
 
@@ -26,7 +28,7 @@
 
     <ion-nav-view></ion-nav-view>
 
-    <script type=text/ng-template id=tabs.html>
+    <script type="text/ng-template" id="tabs.html">
       <ion-tabs class="tabs-icon-top tabs-color-active-positive">
 
         <ion-tab title="Central" icon-off="ion-bluetooth" icon-on="ion-bluetooth" ui-sref="tab.central">
@@ -47,14 +49,14 @@
       </ion-tabs>
     </script>
 
-    <script type=text/ng-template id=central.html>
+    <script type="text/ng-template" id="central.html">
       <ion-view>
         <ion-header-bar align-title="center" class="bar-positive">
           <h1 class="title">Central</h1>
         </ion-header-bar>
         <ion-content>
           <div class="row text-center">
-            <div class="col"><a class="button button-balanced button-small" ng-click="initialize()">Intialize</a></div>
+            <div class="col"><a class="button button-balanced button-small" ng-click="initialize()">Initialize</a></div>
             <div class="col"><a class="button button-energized button-small" ng-click="enable()">Enable</a></div>
             <div class="col"><a class="button button-energized button-small" ng-click="disable()">Disable</a></div>
           </div>
@@ -76,7 +78,7 @@
             <div class="col"><a class="button button-balanced button-small" ng-click="isLocationEnabled()">Is Location Enabled</a></div>
             <div class="col"><a class="button button-balanced button-small" ng-click="requestLocation()">Request Location</a></div>
           </div>
-          <div ng-hide="isEmpty(devices)" ng-cloak>
+          <div><!--</div><div ng-hide="isEmpty(devices)" ng-cloak>-->
             <h4>Devices <a class="button button-assertive button-small" ng-click="clear()">Clear</a></h4>
             <ion-list>
               <ion-item ng-repeat="device in devices track by device.address" ng-click="goToDevice(device)" class="item-icon-right">
@@ -91,7 +93,7 @@
       </ion-view>
     </script>
 
-    <script type=text/ng-template id=device.html>
+    <script type="text/ng-template" id="device.html">
       <ion-view>
         <ion-nav-bar>
           <ion-nav-back-button>
@@ -140,7 +142,7 @@
       </ion-view>
     </script>
 
-    <script type=text/ng-template id=service.html>
+    <script type="text/ng-template" id="service.html">
       <ion-view>
         <ion-nav-bar>
           <ion-nav-back-button></ion-nav-back-button>
@@ -162,7 +164,7 @@
       </ion-view>
     </script>
 
-    <script type=text/ng-template id=characteristic.html>
+    <script type="text/ng-template" id="characteristic.html">
       <ion-view>
         <ion-nav-bar>
           <ion-nav-back-button></ion-nav-back-button>
@@ -212,7 +214,7 @@
       </ion-view>
     </script>
 
-    <script type=text/ng-template id=peripheral.html>
+    <script type="text/ng-template" id="peripheral.html">
       <ion-view>
         <ion-header-bar align-title="center" class="bar-positive">
           <h1 class="title">Peripheral</h1>
@@ -243,7 +245,7 @@
       </ion-view>
     </script>
 
-    <script type=text/ng-template id=examples.html>
+    <script type="text/ng-template" id="examples.html">
       <ion-view>
         <ion-header-bar align-title="center" class="bar-positive">
           <h1 class="title">Examples</h1>
@@ -264,7 +266,7 @@
       </ion-view>
     </script>
 
-    <script type=text/ng-template id=log.html>
+    <script type="text/ng-template" id="log.html">
       <ion-view>
         <ion-header-bar align-title="center" class="bar-positive">
           <h1 class="title">Log</h1>
@@ -274,7 +276,7 @@
         </ion-header-bar>
         <ion-content>
           <ion-list class="log">
-            <ion-item collection-repeat="item in log" ng-click="show(item)">
+            <ion-item collection-repeat="item in log" ng-click="show(item)" item-height="35" item-width="100%">
               <div class="item-body">
                 <strong>{{item.datetime}}</strong>: {{item.message}}
               </div>

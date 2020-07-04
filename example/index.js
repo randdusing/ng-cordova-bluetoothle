@@ -172,7 +172,7 @@ angular.module('myApp', ['ionic', 'ngCordovaBluetoothLE'])
       //params.callbackType = bluetoothle.CALLBACK_TYPE_FIRST_MATCH;
     }
 
-    Log.add("Start Scan : " + JSON.stringify(params));
+    Log.add("Start Scan: " + JSON.stringify(params));
 
     $cordovaBluetoothLE.startScan(params).then(function(obj) {
       Log.add("Start Scan Auto Stop : " + JSON.stringify(obj));
